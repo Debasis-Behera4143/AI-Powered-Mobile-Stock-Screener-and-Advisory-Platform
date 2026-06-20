@@ -151,7 +151,7 @@ router.post('/risk-assessment', async (req, res) => {
         risk_profile: portfolio.risk_profile,
         diversification: portfolio.diversification,
         concentration_risks: portfolio.diversification.concentration_risk,
-        recommendations: this.generateRiskRecommendations(portfolio)
+        recommendations: generateRiskRecommendations(portfolio)
       };
     } else {
       return res.status(400).json({ 
@@ -264,10 +264,10 @@ router.post('/compare-stocks', async (req, res) => {
         revenue_growth: c.fundamentals.revenue_growth,
         current_price: c.price_targets.current_price
       })),
-      best_value: this.findBestByMetric(comparisons, 'pe_ratio', 'lowest'),
-      best_growth: this.findBestByMetric(comparisons, 'revenue_growth', 'highest'),
-      best_overall: this.findBestByMetric(comparisons, 'overall_score', 'highest'),
-      lowest_risk: this.findLowestRisk(comparisons)
+      best_value: findBestByMetric(comparisons, 'pe_ratio', 'lowest'),
+      best_growth: findBestByMetric(comparisons, 'revenue_growth', 'highest'),
+      best_overall: findBestByMetric(comparisons, 'overall_score', 'highest'),
+      lowest_risk: findLowestRisk(comparisons)
     };
 
     res.json({

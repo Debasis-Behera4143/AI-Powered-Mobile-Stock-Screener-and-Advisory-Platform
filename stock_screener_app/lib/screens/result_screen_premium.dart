@@ -87,36 +87,53 @@ class _ResultScreenState extends State<ResultScreen> {
   Widget build(BuildContext context) {
     final filteredResults = _filteredAndSortedResults;
     final hasLiveData = _hasAnyLiveData(filteredResults);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: PremiumColors.deepDark,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: isDark ? Colors.white : PremiumColors.textPrimary,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Search Results', style: PremiumTypography.h3),
+            Text(
+              'Search Results',
+              style: PremiumTypography.h3.copyWith(
+                color: isDark ? Colors.white : PremiumColors.textPrimary,
+              ),
+            ),
             Text(
               '${filteredResults.length} stocks found',
-              style: PremiumTypography.caption,
+              style: PremiumTypography.caption.copyWith(
+                color: isDark ? const Color(0xFF8C7FA6) : PremiumColors.textMuted,
+              ),
             ),
           ],
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.ios_share_rounded),
+            icon: Icon(
+              Icons.ios_share_rounded,
+              color: isDark ? Colors.white : PremiumColors.textPrimary,
+            ),
             tooltip: 'Export Results',
             onPressed: filteredResults.isEmpty
                 ? null
                 : () => _copyResultsReport(filteredResults),
           ),
           IconButton(
-            icon: const Icon(Icons.filter_list_rounded),
+            icon: Icon(
+              Icons.filter_list_rounded,
+              color: isDark ? Colors.white : PremiumColors.textPrimary,
+            ),
             onPressed: _showFilterSheet,
           ),
         ],
@@ -131,16 +148,18 @@ class _ResultScreenState extends State<ResultScreen> {
               padding: const EdgeInsets.all(PremiumUI.spacingM),
               child: Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.auto_awesome_rounded,
-                    color: PremiumColors.neonTeal,
+                    color: isDark ? const Color(0xFF00F5FF) : PremiumColors.neonTeal,
                     size: PremiumUI.iconM,
                   ),
                   const SizedBox(width: PremiumUI.spacingM),
                   Expanded(
                     child: Text(
                       widget.query,
-                      style: PremiumTypography.body2,
+                      style: PremiumTypography.body2.copyWith(
+                        color: isDark ? const Color(0xFFE2E8F0) : PremiumColors.textSecondary,
+                      ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -302,6 +321,7 @@ class _ResultScreenState extends State<ResultScreen> {
   }
 
   Widget _buildFilterChip(String label, bool isSelected, VoidCallback onTap) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -310,8 +330,16 @@ class _ResultScreenState extends State<ResultScreen> {
           vertical: PremiumUI.spacingS,
         ),
         decoration: BoxDecoration(
-          color: isSelected ? PremiumColors.neonTeal : PremiumColors.surfaceBg,
+          color: isSelected
+              ? (isDark ? const Color(0xFFA855F7) : PremiumColors.neonTeal)
+              : (isDark ? const Color(0xFF1E143A) : PremiumColors.surfaceBg),
           borderRadius: BorderRadius.circular(PremiumUI.radiusL),
+          border: Border.all(
+            color: isDark
+                ? (isSelected ? const Color(0x3300F5FF) : const Color(0x33A855F7))
+                : Colors.transparent,
+            width: 1.2,
+          ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -321,8 +349,8 @@ class _ResultScreenState extends State<ResultScreen> {
               style: PremiumTypography.body2.copyWith(
                 color: isSelected
                     ? PremiumColors.textOnAccent
-                    : PremiumColors.textPrimary,
-                fontWeight: FontWeight.w600,
+                    : (isDark ? const Color(0xFFE2E8F0) : PremiumColors.textPrimary),
+                fontWeight: FontWeight.w700,
               ),
             ),
             if (isSelected) ...[

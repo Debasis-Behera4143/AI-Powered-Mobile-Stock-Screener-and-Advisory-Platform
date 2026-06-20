@@ -22,7 +22,7 @@ class _WatchlistScreenFixedState extends State<WatchlistScreenFixed> {
   
   final WatchlistApiService _watchlistService = WatchlistApiService();
   final ApiService _apiService = ApiService();
-  int get _userId => AuthService.instance.currentUserId ?? 1;
+  int? get _userId => AuthService.instance.currentUserId;
 
   @override
   void initState() {
@@ -52,7 +52,15 @@ class _WatchlistScreenFixedState extends State<WatchlistScreenFixed> {
     });
 
     try {
-      final watchlist = await _watchlistService.getWatchlist(_userId);
+      final userId = _userId;
+      if (userId == null) {
+        setState(() {
+          _watchlist = [];
+          _isLoading = false;
+        });
+        return;
+      }
+      final watchlist = await _watchlistService.getWatchlist(userId);
       
       if (mounted) {
         setState(() {
@@ -79,7 +87,9 @@ class _WatchlistScreenFixedState extends State<WatchlistScreenFixed> {
     }
 
     try {
-      final watchlist = await _watchlistService.getWatchlist(_userId);
+      final userId = _userId;
+      if (userId == null) return;
+      final watchlist = await _watchlistService.getWatchlist(userId);
       if (mounted) {
         setState(() {
           _watchlist = watchlist;
@@ -101,7 +111,9 @@ class _WatchlistScreenFixedState extends State<WatchlistScreenFixed> {
 
   Future<void> _removeFromWatchlist(String symbol) async {
     try {
-      await _watchlistService.removeFromWatchlist(_userId, symbol);
+      final userId = _userId;
+      if (userId == null) return;
+      await _watchlistService.removeFromWatchlist(userId, symbol);
       await _loadWatchlist();
       
       if (mounted) {
@@ -111,7 +123,9 @@ class _WatchlistScreenFixedState extends State<WatchlistScreenFixed> {
             action: SnackBarAction(
               label: 'Undo',
               onPressed: () async {
-                await _watchlistService.addToWatchlist(_userId, symbol);
+                final userId = _userId;
+                if (userId == null) return;
+                await _watchlistService.addToWatchlist(userId, symbol);
                 await _loadWatchlist();
               },
             ),

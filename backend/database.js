@@ -18,12 +18,20 @@ const basePoolConfig = process.env.DATABASE_URL
       password: process.env.DB_PASSWORD,
     };
 
+const poolMax = parseInt(process.env.DB_POOL_MAX || "50", 10);
+const poolIdleTimeoutMs = parseInt(process.env.DB_POOL_IDLE_TIMEOUT_MS || "30000", 10);
+const poolConnectionTimeoutMs = parseInt(process.env.DB_POOL_CONNECTION_TIMEOUT_MS || "5000", 10);
+
+const rejectUnauthorized = process.env.NODE_ENV === "production"
+  ? process.env.DB_SSL_REJECT_UNAUTHORIZED !== "false"
+  : false;
+
 const pool = new Pool({
   ...basePoolConfig,
-  ssl: sslEnabled ? { rejectUnauthorized: false } : false,
-  max: 20,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 5000,
+  ssl: sslEnabled ? { rejectUnauthorized } : false,
+  max: poolMax,
+  idleTimeoutMillis: poolIdleTimeoutMs,
+  connectionTimeoutMillis: poolConnectionTimeoutMs,
 });
 
 // Handle pool errors to prevent app crashes

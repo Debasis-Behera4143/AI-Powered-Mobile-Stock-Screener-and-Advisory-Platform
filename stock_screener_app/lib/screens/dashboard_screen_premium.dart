@@ -60,12 +60,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFFFFBE8),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: _loadDashboardData,
-          color: PremiumColors.neonTeal,
+          color: isDark ? const Color(0xFF00F5FF) : PremiumColors.neonTeal,
           child: CustomScrollView(
             slivers: [
               SliverPadding(
@@ -165,7 +167,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   0,
                 ),
                 sliver: SliverToBoxAdapter(
-                  child: Text('Quick Actions', style: PremiumTypography.h3),
+                  child: Text(
+                    'Quick Actions',
+                    style: PremiumTypography.h3.copyWith(
+                      fontWeight: FontWeight.w800,
+                      color: isDark ? Colors.white : PremiumColors.textPrimary,
+                    ),
+                  ),
                 ),
               ),
               SliverPadding(
@@ -181,13 +189,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     _buildQuickActionCard(
                       title: 'Watchlist',
                       icon: Icons.bookmark_rounded,
-                      gradient: PremiumColors.primaryGradient,
+                      gradient: isDark ? PremiumColors.purpleGradient : PremiumColors.primaryGradient,
                       onTap: () => widget.onNavigateToTab?.call(1),
                     ),
                     _buildQuickActionCard(
                       title: 'Portfolio',
                       icon: Icons.pie_chart_rounded,
-                      gradient: PremiumColors.purpleGradient,
+                      gradient: isDark ? PremiumColors.primaryGradient : PremiumColors.purpleGradient,
                       onTap: () => widget.onNavigateToTab?.call(3),
                     ),
                     _buildQuickActionCard(
@@ -199,11 +207,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     _buildQuickActionCard(
                       title: 'Screener',
                       icon: Icons.manage_search_rounded,
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF60A5FA), Color(0xFF2563EB)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
+                      gradient: PremiumColors.lossGradient,
                       onTap: () => widget.onNavigateToTab?.call(0),
                     ),
                   ]),
@@ -220,8 +224,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildHeaderCard() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return PremiumCard(
-      backgroundColor: Colors.white,
       padding: const EdgeInsets.all(PremiumUI.spacingM),
       child: Row(
         children: [
@@ -229,7 +233,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              gradient: PremiumColors.primaryGradient,
+              gradient: isDark ? PremiumColors.purpleGradient : PremiumColors.primaryGradient,
               borderRadius: BorderRadius.circular(PremiumUI.radiusM),
             ),
             child: const Icon(
@@ -243,7 +247,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Market Dashboard', style: PremiumTypography.h3),
+                Text(
+                  'Market Dashboard',
+                  style: PremiumTypography.h3.copyWith(
+                    color: isDark ? Colors.white : PremiumColors.textPrimary,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
                 Text(
                   _lastUpdatedAt == null
                       ? 'Syncing live data...'
@@ -251,14 +261,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: PremiumTypography.caption.copyWith(
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w700,
+                    color: isDark ? const Color(0xFF8C7FA6) : PremiumColors.textMuted,
                   ),
                 ),
               ],
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.refresh_rounded),
+            icon: Icon(
+              Icons.refresh_rounded,
+              color: isDark ? Colors.white : PremiumColors.textPrimary,
+            ),
             onPressed: _loadDashboardData,
             tooltip: 'Refresh',
           ),
@@ -307,18 +321,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
             title,
             style: PremiumTypography.caption.copyWith(
               color: Colors.white.withValues(alpha: 0.9),
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w800,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             value,
-            style: PremiumTypography.priceMedium.copyWith(color: Colors.white),
+            style: PremiumTypography.priceMedium.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w900,
+            ),
           ),
           Text(
             subtitle,
             style: PremiumTypography.caption.copyWith(
               color: Colors.white.withValues(alpha: 0.8),
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -327,19 +345,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildTrendingHeader() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Wrap(
       alignment: WrapAlignment.spaceBetween,
       crossAxisAlignment: WrapCrossAlignment.center,
       runSpacing: PremiumUI.spacingS,
       children: [
-        Text('Trending Stocks', style: PremiumTypography.h3),
+        Text(
+          'Trending Stocks',
+          style: PremiumTypography.h3.copyWith(
+            fontWeight: FontWeight.w800,
+            color: isDark ? Colors.white : PremiumColors.textPrimary,
+          ),
+        ),
         TextButton(
           onPressed: () => widget.onNavigateToTab?.call(1),
           child: Text(
             'Open Watchlist',
             style: PremiumTypography.body2.copyWith(
-              color: PremiumColors.neonTeal,
-              fontWeight: FontWeight.w700,
+              color: isDark ? const Color(0xFF00F5FF) : PremiumColors.neonTeal,
+              fontWeight: FontWeight.w800,
             ),
           ),
         ),
@@ -348,6 +373,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildMomentumChart() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final movers = <Map<String, dynamic>>[
       ..._topGainers.whereType<Map<String, dynamic>>().take(3),
       ..._topLosers.whereType<Map<String, dynamic>>().take(3),
@@ -355,11 +381,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     if (movers.isEmpty) {
       return PremiumCard(
-        backgroundColor: Colors.white,
         padding: const EdgeInsets.all(PremiumUI.spacingM),
         child: Text(
           'Momentum chart will appear when movers data is available.',
-          style: PremiumTypography.caption,
+          style: PremiumTypography.caption.copyWith(
+            color: isDark ? const Color(0xFF8C7FA6) : PremiumColors.textMuted,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       );
     }
@@ -377,7 +405,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final worst = values.reduce((a, b) => a < b ? a : b);
 
     return PremiumCard(
-      backgroundColor: Colors.white,
       padding: const EdgeInsets.all(PremiumUI.spacingM),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -387,7 +414,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
             runSpacing: PremiumUI.spacingS,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              Text('Market Momentum', style: PremiumTypography.h3),
+              Text(
+                'Market Momentum',
+                style: PremiumTypography.h3.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: isDark ? Colors.white : PremiumColors.textPrimary,
+                ),
+              ),
               _legendDot(PremiumColors.profit, 'Gainers'),
               _legendDot(PremiumColors.loss, 'Losers'),
             ],
@@ -415,19 +448,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   horizontalInterval: maxY / 4,
                   drawVerticalLine: false,
                   getDrawingHorizontalLine: (value) =>
-                      FlLine(color: PremiumColors.divider, strokeWidth: 0.8),
+                      FlLine(
+                        color: isDark ? const Color(0xFF2E2452) : PremiumColors.divider,
+                        strokeWidth: 0.8,
+                      ),
                 ),
                 borderData: FlBorderData(show: false),
                 extraLinesData: ExtraLinesData(
                   horizontalLines: [
                     HorizontalLine(
                       y: 0,
-                      color: PremiumColors.textMuted.withValues(alpha: 0.35),
+                      color: isDark ? const Color(0x3F00F5FF) : PremiumColors.textMuted.withValues(alpha: 0.35),
                       strokeWidth: 1,
                     ),
                     HorizontalLine(
                       y: average,
-                      color: PremiumColors.info.withValues(alpha: 0.45),
+                      color: isDark ? const Color(0x5FA855F7) : PremiumColors.info.withValues(alpha: 0.45),
                       strokeWidth: 1,
                       dashArray: const [6, 4],
                     ),
@@ -437,7 +473,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   enabled: true,
                   touchTooltipData: BarTouchTooltipData(
                     tooltipRoundedRadius: 10,
-                    getTooltipColor: (_) => PremiumColors.textPrimary,
+                    getTooltipColor: (_) => isDark ? const Color(0xFF1C133A) : PremiumColors.textPrimary,
                     getTooltipItem: (group, groupIndex, rod, _) {
                       final stock = movers[group.x.toInt()];
                       final symbol = _stockSymbol(stock);
@@ -465,18 +501,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       reservedSize: 38,
                       interval: maxY / 4,
                       getTitlesWidget: (value, meta) {
-                        if (value == 0) {
-                          return Text(
-                            '0%',
-                            style: PremiumTypography.caption.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
-                          );
-                        }
-                        return Text(
-                          '${value.toStringAsFixed(0)}%',
-                          style: PremiumTypography.caption,
+                        final style = PremiumTypography.caption.copyWith(
+                          color: isDark ? const Color(0xFF8C7FA6) : PremiumColors.textMuted,
+                          fontWeight: FontWeight.w700,
                         );
+                        if (value == 0) {
+                          return Text('0%', style: style);
+                        }
+                        return Text('${value.toStringAsFixed(0)}%', style: style);
                       },
                     ),
                   ),
@@ -492,7 +524,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           padding: const EdgeInsets.only(top: 8),
                           child: Text(
                             _stockSymbol(movers[idx]),
-                            style: PremiumTypography.caption,
+                            style: PremiumTypography.caption.copyWith(
+                              color: isDark ? const Color(0xFF8C7FA6) : PremiumColors.textMuted,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                         );
                       },
@@ -544,35 +579,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }) {
     return PremiumCard(
       onTap: onTap,
-      padding: EdgeInsets.zero,
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: gradient,
-          borderRadius: BorderRadius.circular(PremiumUI.radiusL),
-        ),
-        padding: const EdgeInsets.all(PremiumUI.spacingM),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: Colors.white, size: PremiumUI.iconL),
-            const SizedBox(height: PremiumUI.spacingS),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: PremiumTypography.body2.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.w700,
-              ),
+      gradient: gradient,
+      padding: const EdgeInsets.all(PremiumUI.spacingM),
+      borderRadius: BorderRadius.circular(PremiumUI.radiusL),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: Colors.white, size: PremiumUI.iconL),
+          const SizedBox(height: PremiumUI.spacingS),
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: PremiumTypography.body2.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w800,
+              fontSize: 14,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _legendDot(Color color, String label) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -585,7 +617,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         Text(
           label,
           style: PremiumTypography.caption.copyWith(
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w700,
+            color: isDark ? const Color(0xFFE2E8F0) : PremiumColors.textSecondary,
           ),
         ),
       ],
@@ -593,21 +626,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _metricChip(String label, String value) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: PremiumUI.spacingS,
         vertical: 6,
       ),
       decoration: BoxDecoration(
-        color: PremiumColors.surfaceBg,
+        color: isDark ? const Color(0xFF1E143A) : PremiumColors.surfaceBg,
         borderRadius: BorderRadius.circular(PremiumUI.radiusS),
-        border: Border.all(color: PremiumColors.divider),
+        border: Border.all(color: isDark ? const Color(0xFF334155) : PremiumColors.divider),
       ),
       child: Text(
         '$label $value',
         style: PremiumTypography.caption.copyWith(
-          fontWeight: FontWeight.w700,
-          color: PremiumColors.textSecondary,
+          fontWeight: FontWeight.w800,
+          color: isDark ? const Color(0xFFE2E8F0) : PremiumColors.textSecondary,
         ),
       ),
     );

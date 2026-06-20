@@ -64,9 +64,9 @@ class _DashboardScreenState extends State<DashboardScreen>
     }
 
     try {
-      final userId = widget.userId ?? AuthService.instance.currentUserId ?? 1;
+      final userId = widget.userId ?? AuthService.instance.currentUserId;
       final dashboardData = await _apiService.getDashboardData();
-      final portfolio = await _apiService.getPortfolio(userId);
+      final portfolio = userId == null ? null : await _apiService.getPortfolio(userId);
 
       if (mounted) {
         setState(() {

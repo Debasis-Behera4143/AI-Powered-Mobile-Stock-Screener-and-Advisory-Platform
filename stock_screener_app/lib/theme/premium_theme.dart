@@ -3,48 +3,48 @@ import 'package:flutter/material.dart';
 /// Premium FinTech color palette inspired by modern trading apps.
 /// Clean neutral surfaces with green/blue accents for trust and clarity.
 class PremiumColors {
-  // Background (light yellow + cool blue surfaces)
-  static const deepDark = Color(0xFFFFFBE8);
-  static const cardBg = Color(0xFFFFFFFF);
-  static const surfaceBg = Color(0xFFEAF3FF);
+  // Background (ultra-clean modern slate-white)
+  static const deepDark = Color(0xFFF8FAFC); // Slate 50
+  static const cardBg = Color(0xFFFFFFFF); // Pure White
+  static const surfaceBg = Color(0xFFF1F5F9); // Slate 100
 
-  // Accents
-  static const neonTeal = Color(0xFF2563EB);
-  static const softPurple = Color(0xFF1D4ED8);
-  static const electricBlue = Color(0xFF1E40AF);
+  // Accents (curated, harmonious high-end Indigo, Cobalt, and Teal)
+  static const neonTeal = Color(0xFF6366F1); // Indigo
+  static const softPurple = Color(0xFF4F46E5); // Deep Indigo
+  static const electricBlue = Color(0xFF3B82F6); // Vibrant Blue
 
-  // Status Colors
-  static const profit = Color(0xFF16A34A);
-  static const loss = Color(0xFFDC2626);
-  static const warning = Color(0xFFF59E0B);
-  static const info = Color(0xFF0EA5E9);
+  // Status Colors (modern emerald, ruby/rose, amber, and cyan)
+  static const profit = Color(0xFF10B981); // Emerald Green
+  static const loss = Color(0xFFF43F5E); // Rose/Red
+  static const warning = Color(0xFFF59E0B); // Amber
+  static const info = Color(0xFF06B6D4); // Cyan
 
   // Text
-  static const textPrimary = Color(0xFF0F172A);
-  static const textSecondary = Color(0xFF334155);
-  static const textMuted = Color(0xFF64748B);
+  static const textPrimary = Color(0xFF0F172A); // Slate 900
+  static const textSecondary = Color(0xFF334155); // Slate 700
+  static const textMuted = Color(0xFF64748B); // Slate 500
   static const textOnAccent = Color(0xFFFFFFFF);
 
   // Overlays & Dividers
-  static const overlay = Color(0x1A2563EB);
-  static const divider = Color(0x140F172A);
-  static const glassBg = Color(0xE6FFFFFF);
+  static const overlay = Color(0x1F6366F1); // 12% Indigo
+  static const divider = Color(0x0F0F172A); // 6% Slate 900
+  static const glassBg = Color(0xCCFFFFFF); // 80% Glass White
 
   // Gradients
   static const LinearGradient primaryGradient = LinearGradient(
-    colors: [Color(0xFF60A5FA), neonTeal],
+    colors: [Color(0xFF818CF8), neonTeal],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const LinearGradient purpleGradient = LinearGradient(
-    colors: [Color(0xFF93C5FD), softPurple],
+    colors: [Color(0xFF6366F1), softPurple],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const LinearGradient profitGradient = LinearGradient(
-    colors: [Color(0xFF22C55E), profit],
+    colors: [Color(0xFF34D399), profit],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
@@ -266,13 +266,13 @@ class PremiumTheme {
   static ThemeData get darkTheme {
     return ThemeData(
       brightness: Brightness.dark,
-      scaffoldBackgroundColor: const Color(0xFF0D1522),
-      primaryColor: const Color(0xFF00C896),
+      scaffoldBackgroundColor: const Color(0xFF090D16),
+      primaryColor: const Color(0xFF10B981),
       colorScheme: const ColorScheme.dark(
-        primary: Color(0xFF00C896),
-        secondary: Color(0xFF3B82F6),
-        surface: Color(0xFF111C2D),
-        error: Color(0xFFEF4444),
+        primary: Color(0xFF10B981),
+        secondary: Color(0xFF6366F1),
+        surface: Color(0xFF111827),
+        error: Color(0xFFF43F5E),
       ),
 
       // AppBar Theme
@@ -286,7 +286,7 @@ class PremiumTheme {
 
       // Card Theme
       cardTheme: const CardThemeData(
-        color: Color(0xFF111C2D),
+        color: Color(0xFF111827),
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(20)),
@@ -296,8 +296,8 @@ class PremiumTheme {
       // Elevated Button Theme
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF00C896),
-          foregroundColor: const Color(0xFF0D1522),
+          backgroundColor: const Color(0xFF10B981),
+          foregroundColor: const Color(0xFF090D16),
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           shape: RoundedRectangleBorder(
@@ -314,7 +314,7 @@ class PremiumTheme {
       // Input Decoration Theme
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: const Color(0xFF111C2D),
+        fillColor: const Color(0xFF111827),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide.none,
@@ -325,7 +325,7 @@ class PremiumTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFF00C896), width: 2),
+          borderSide: const BorderSide(color: Color(0xFF10B981), width: 2),
         ),
         hintStyle: const TextStyle(
           color: Color(0xFF6B7280),
@@ -339,7 +339,7 @@ class PremiumTheme {
 
       // Chip Theme
       chipTheme: ChipThemeData(
-        backgroundColor: const Color(0xFF1A2A3F),
+        backgroundColor: const Color(0xFF1F2937),
         labelStyle: const TextStyle(
           color: Colors.white,
           fontFamily: PremiumTypography.primaryFont,
@@ -357,8 +357,8 @@ class PremiumTheme {
 
       // Bottom Navigation Bar Theme
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: Color(0xFF111C2D),
-        selectedItemColor: Color(0xFF00C896),
+        backgroundColor: Color(0xFF111827),
+        selectedItemColor: Color(0xFF10B981),
         unselectedItemColor: Color(0xFF6B7280),
         type: BottomNavigationBarType.fixed,
         elevation: 0,

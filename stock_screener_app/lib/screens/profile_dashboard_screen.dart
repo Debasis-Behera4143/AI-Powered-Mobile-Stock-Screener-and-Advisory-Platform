@@ -54,8 +54,8 @@ class _ProfileDashboardScreenState extends State<ProfileDashboardScreen>
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              AppColors.primary.withOpacity(0.1),
-              AppColors.secondary.withOpacity(0.1),
+              AppColors.primary.withValues(alpha: 0.1),
+              AppColors.secondary.withValues(alpha: 0.1),
             ],
           ),
         ),
@@ -89,7 +89,7 @@ class _ProfileDashboardScreenState extends State<ProfileDashboardScreen>
         gradient: AppColors.primaryGradient,
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withOpacity(0.3),
+            color: AppColors.primary.withValues(alpha: 0.3),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -103,7 +103,7 @@ class _ProfileDashboardScreenState extends State<ProfileDashboardScreen>
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const FaIcon(
@@ -154,7 +154,7 @@ class _ProfileDashboardScreenState extends State<ProfileDashboardScreen>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -281,7 +281,7 @@ class _ProfileDashboardScreenState extends State<ProfileDashboardScreen>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -310,10 +310,10 @@ class _ProfileDashboardScreenState extends State<ProfileDashboardScreen>
                   decoration: BoxDecoration(
                     gradient: isPositive
                         ? LinearGradient(
-                            colors: [AppColors.success, AppColors.success.withOpacity(0.7)],
+                            colors: [AppColors.success, AppColors.success.withValues(alpha: 0.7)],
                           )
                         : LinearGradient(
-                            colors: [AppColors.error, AppColors.error.withOpacity(0.7)],
+                            colors: [AppColors.error, AppColors.error.withValues(alpha: 0.7)],
                           ),
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -379,8 +379,8 @@ class _ProfileDashboardScreenState extends State<ProfileDashboardScreen>
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: isPositive
-                            ? AppColors.success.withOpacity(0.1)
-                            : AppColors.error.withOpacity(0.1),
+                            ? AppColors.success.withValues(alpha: 0.1)
+                            : AppColors.error.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Row(
@@ -424,7 +424,7 @@ class _ProfileDashboardScreenState extends State<ProfileDashboardScreen>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -502,7 +502,7 @@ class _ProfileDashboardScreenState extends State<ProfileDashboardScreen>
             child: FaIcon(
               icon,
               size: 64,
-              color: AppColors.primary.withOpacity(0.5),
+              color: AppColors.primary.withValues(alpha: 0.5),
             ),
           ),
           const SizedBox(height: 24),

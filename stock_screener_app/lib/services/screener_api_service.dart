@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/saved_screener.dart';
 import 'api_config.dart';
+import 'auth_service.dart';
 
 class ScreenerApiService {
   String get baseUrl => '${ApiConfig.baseUrl}/api/screeners';
@@ -16,7 +17,7 @@ class ScreenerApiService {
     try {
       final response = await http.post(
         Uri.parse(baseUrl),
-        headers: {'Content-Type': 'application/json'},
+        headers: AuthService.instance.authorizedHeaders(),
         body: json.encode({
           'userId': userId,
           'name': name,
@@ -50,7 +51,7 @@ class ScreenerApiService {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/$userId'),
-        headers: {'Content-Type': 'application/json'},
+        headers: AuthService.instance.authorizedHeaders(jsonContent: false),
       );
 
       if (response.statusCode == 200) {
@@ -86,7 +87,7 @@ class ScreenerApiService {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/$userId/stats'),
-        headers: {'Content-Type': 'application/json'},
+        headers: AuthService.instance.authorizedHeaders(jsonContent: false),
       );
 
       if (response.statusCode == 200) {
@@ -114,7 +115,7 @@ class ScreenerApiService {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/$userId/$screenerId'),
-        headers: {'Content-Type': 'application/json'},
+        headers: AuthService.instance.authorizedHeaders(jsonContent: false),
       );
 
       if (response.statusCode == 200) {
@@ -156,7 +157,7 @@ class ScreenerApiService {
 
       final response = await http.patch(
         Uri.parse('$baseUrl/$userId/$screenerId'),
-        headers: {'Content-Type': 'application/json'},
+        headers: AuthService.instance.authorizedHeaders(),
         body: json.encode(updates),
       );
 
@@ -181,7 +182,7 @@ class ScreenerApiService {
     try {
       final response = await http.delete(
         Uri.parse('$baseUrl/$userId/$screenerId'),
-        headers: {'Content-Type': 'application/json'},
+        headers: AuthService.instance.authorizedHeaders(jsonContent: false),
       );
 
       if (response.statusCode != 200) {
@@ -205,7 +206,7 @@ class ScreenerApiService {
     try {
       final response = await http.patch(
         Uri.parse('$baseUrl/$userId/$screenerId/notifications'),
-        headers: {'Content-Type': 'application/json'},
+        headers: AuthService.instance.authorizedHeaders(),
         body: json.encode({'enabled': enabled}),
       );
 

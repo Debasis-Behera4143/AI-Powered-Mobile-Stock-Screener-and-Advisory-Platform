@@ -99,14 +99,14 @@ class AppTheme {
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: accentGold.withOpacity(0.3), width: 1.5),
+        borderSide: BorderSide(color: accentGold.withValues(alpha: 0.3), width: 1.5),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: const BorderSide(color: accentGold, width: 2.5),
       ),
       labelStyle: const TextStyle(color: accentGold),
-      hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
+      hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
     ),
     
     // Text Theme
@@ -224,7 +224,7 @@ class AppTheme {
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: primaryBlue.withOpacity(0.3), width: 1.5),
+        borderSide: BorderSide(color: primaryBlue.withValues(alpha: 0.3), width: 1.5),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),

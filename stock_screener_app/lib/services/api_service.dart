@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../widgets/rate_limit_handler.dart';
+import 'auth_service.dart';
 import 'api_config.dart';
 
 class ApiService {
@@ -20,8 +21,8 @@ class ApiService {
 
       final response = await http
           .post(
-            Uri.parse('$baseUrl/screener'),
-            headers: {'Content-Type': 'application/json'},
+            Uri.parse('$baseUrl/screener?live=true'),
+            headers: AuthService.instance.authorizedHeaders(),
             body: jsonEncode({'query': query}),
           )
           .timeout(
@@ -88,7 +89,10 @@ class ApiService {
   Future<Map<String, dynamic>?> getPortfolio(int userId) async {
     try {
       final response = await http
-          .get(Uri.parse('$baseUrl/api/portfolio/$userId'))
+          .get(
+            Uri.parse('$baseUrl/api/portfolio/$userId'),
+            headers: AuthService.instance.authorizedHeaders(jsonContent: false),
+          )
           .timeout(defaultTimeout);
 
       if (response.statusCode == 200) {
@@ -111,7 +115,7 @@ class ApiService {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/api/portfolio/add'),
-        headers: {'Content-Type': 'application/json'},
+        headers: AuthService.instance.authorizedHeaders(),
         body: jsonEncode({
           'userId': userId,
           'symbol': symbol.trim().toUpperCase(),
@@ -140,7 +144,7 @@ class ApiService {
         'DELETE',
         Uri.parse('$baseUrl/api/portfolio/remove'),
       );
-      request.headers['Content-Type'] = 'application/json';
+      request.headers.addAll(AuthService.instance.authorizedHeaders());
       request.body = jsonEncode({
         'userId': userId,
         'symbol': symbol.trim().toUpperCase(),
@@ -160,7 +164,12 @@ class ApiService {
     try {
       final url =
           '$baseUrl/api/alerts/$userId${unreadOnly ? '?unreadOnly=true' : ''}';
-      final response = await http.get(Uri.parse(url)).timeout(defaultTimeout);
+      final response = await http
+          .get(
+            Uri.parse(url),
+            headers: AuthService.instance.authorizedHeaders(jsonContent: false),
+          )
+          .timeout(defaultTimeout);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -194,6 +203,7 @@ class ApiService {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/api/screeners/$userId'),
+        headers: AuthService.instance.authorizedHeaders(jsonContent: false),
       );
 
       if (response.statusCode == 200) {
@@ -222,6 +232,7 @@ class ApiService {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/api/alerts/$userId/stats'),
+        headers: AuthService.instance.authorizedHeaders(jsonContent: false),
       );
 
       if (response.statusCode == 200) {
@@ -264,7 +275,7 @@ class ApiService {
     try {
       final response = await http.patch(
         Uri.parse('$baseUrl/api/alerts/$alertId/read'),
-        headers: {'Content-Type': 'application/json'},
+        headers: AuthService.instance.authorizedHeaders(),
         body: jsonEncode({'userId': userId}),
       );
 
@@ -280,7 +291,7 @@ class ApiService {
     try {
       final response = await http.patch(
         Uri.parse('$baseUrl/api/alerts/$userId/read-all'),
-        headers: {'Content-Type': 'application/json'},
+        headers: AuthService.instance.authorizedHeaders(),
       );
 
       return response.statusCode == 200;
@@ -301,7 +312,7 @@ class ApiService {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/api/alerts'),
-        headers: {'Content-Type': 'application/json'},
+        headers: AuthService.instance.authorizedHeaders(),
         body: jsonEncode({
           'userId': userId,
           'symbol': symbol.trim().toUpperCase(),
@@ -325,7 +336,10 @@ class ApiService {
   /// Get system status
   Future<Map<String, dynamic>?> getSystemStatus() async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/api/admin/status'));
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/admin/status'),
+        headers: AuthService.instance.authorizedHeaders(jsonContent: false),
+      );
 
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
@@ -437,7 +451,7 @@ class ApiService {
   Future<List<dynamic>> getAllStocks() async {
     try {
       final response = await http
-          .get(Uri.parse('$baseUrl/stocks'))
+          .get(Uri.parse('$baseUrl/stocks?live=true'))
           .timeout(defaultTimeout);
 
       if (response.statusCode == 200) {

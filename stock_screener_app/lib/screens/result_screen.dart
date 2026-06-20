@@ -7,6 +7,7 @@ import '../services/auth_service.dart';
 import '../models/stock_model.dart';
 import 'stock_detail_screen.dart';
 import 'add_to_watchlist_dialog.dart';
+import '../widgets/auth_sheet.dart';
 
 class ResultScreen extends StatefulWidget {
   final List<dynamic> results;
@@ -24,7 +25,7 @@ class _ResultScreenState extends State<ResultScreen>
   String _sortBy = 'market_cap';
   bool _sortAscending = false;
   final WatchlistApiService _watchlistService = WatchlistApiService();
-  int get _userId => AuthService.instance.currentUserId ?? 1;
+  int? get _userId => AuthService.instance.currentUserId;
 
   @override
   void initState() {
@@ -538,7 +539,14 @@ class _ResultScreenState extends State<ResultScreen>
                         size: 24,
                       ),
                       tooltip: 'Add to Watchlist',
-                      onPressed: () {
+                      onPressed: () async {
+                        var userId = _userId;
+                        if (userId == null) {
+                          final loggedIn = await showAuthSheet(context);
+                          if (!mounted || !loggedIn) return;
+                          userId = _userId;
+                          if (userId == null) return;
+                        }
                         showDialog(
                           context: context,
                           builder: (context) => AddToWatchlistDialog(
@@ -547,7 +555,7 @@ class _ResultScreenState extends State<ResultScreen>
                             currentPrice: _parseDouble(
                               stock['current_price'] ?? stock['price'] ?? 0,
                             ),
-                            userId: _userId,
+                            userId: userId!,
                           ),
                         ).then((result) {
                           if (result == true) {
@@ -559,7 +567,7 @@ class _ResultScreenState extends State<ResultScreen>
                     if (false) // Placeholder to maintain structure
                       FutureBuilder<bool>(
                         future: _watchlistService.isInWatchlist(
-                          _userId,
+                          _userId ?? 0,
                           symbol,
                         ),
                         builder: (context, snapshot) {
@@ -576,8 +584,10 @@ class _ResultScreenState extends State<ResultScreen>
                             ),
                             onPressed: () async {
                               try {
+                                final userId = _userId;
+                                if (userId == null) return;
                                 final newState = await _watchlistService
-                                    .toggleWatchlist(_userId, symbol);
+                                    .toggleWatchlist(userId, symbol);
                                 setState(() {}); // Refresh UI
                                 if (mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(

@@ -34,7 +34,7 @@ class FreshnessIndicator extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.2),
+                  color: color.withValues(alpha: 0.2),
                   border: Border.all(color: color, width: 1.5),
                   borderRadius: BorderRadius.circular(20),
                 ),
@@ -80,8 +80,8 @@ class FreshnessIndicator extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  border: Border.all(color: color.withOpacity(0.3)),
+                  color: color.withValues(alpha: 0.1),
+                  border: Border.all(color: color.withValues(alpha: 0.3)),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Row(
@@ -161,7 +161,7 @@ class StaleDataWarning extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       margin: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha: 0.15),
         border: Border.all(color: color, width: 2),
         borderRadius: BorderRadius.circular(8),
       ),

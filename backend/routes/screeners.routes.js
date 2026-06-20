@@ -7,6 +7,9 @@ const express = require('express');
 const router = express.Router();
 const savedScreenersService = require('../services/savedScreeners.service');
 const { body, param, query, validationResult } = require('express-validator');
+const { authenticateRequired, requireMatchingUser } = require('../middleware/auth.middleware');
+
+router.use(authenticateRequired);
 
 /**
  * Validation middleware
@@ -33,7 +36,7 @@ router.post('/', [
   body('description').optional().isString(),
   body('dslQuery').isObject().withMessage('DSL query must be an object'),
   body('notificationEnabled').optional().isBoolean()
-], validate, async (req, res) => {
+], validate, requireMatchingUser, async (req, res) => {
   try {
     const screener = await savedScreenersService.saveScreener(req.body);
 
@@ -60,7 +63,7 @@ router.post('/', [
 router.get('/:userId', [
   param('userId').isInt({ min: 1 }).withMessage('Valid user ID required'),
   query('activeOnly').optional().isBoolean()
-], validate, async (req, res) => {
+], validate, requireMatchingUser, async (req, res) => {
   try {
     const { userId } = req.params;
     const activeOnly = req.query.activeOnly === 'true';
@@ -92,7 +95,7 @@ router.get('/:userId', [
  */
 router.get('/:userId/stats', [
   param('userId').isInt({ min: 1 }).withMessage('Valid user ID required')
-], validate, async (req, res) => {
+], validate, requireMatchingUser, async (req, res) => {
   try {
     const { userId } = req.params;
     const stats = await savedScreenersService.getScreenerStats(parseInt(userId));
@@ -119,7 +122,7 @@ router.get('/:userId/stats', [
 router.get('/:userId/:screenerId', [
   param('userId').isInt({ min: 1 }).withMessage('Valid user ID required'),
   param('screenerId').isInt({ min: 1 }).withMessage('Valid screener ID required')
-], validate, async (req, res) => {
+], validate, requireMatchingUser, async (req, res) => {
   try {
     const { userId, screenerId } = req.params;
     const screener = await savedScreenersService.getScreenerById(
@@ -154,7 +157,7 @@ router.patch('/:userId/:screenerId', [
   body('dslQuery').optional().isObject(),
   body('notificationEnabled').optional().isBoolean(),
   body('active').optional().isBoolean()
-], validate, async (req, res) => {
+], validate, requireMatchingUser, async (req, res) => {
   try {
     const { userId, screenerId } = req.params;
     const screener = await savedScreenersService.updateScreener(
@@ -186,7 +189,7 @@ router.patch('/:userId/:screenerId', [
 router.delete('/:userId/:screenerId', [
   param('userId').isInt({ min: 1 }).withMessage('Valid user ID required'),
   param('screenerId').isInt({ min: 1 }).withMessage('Valid screener ID required')
-], validate, async (req, res) => {
+], validate, requireMatchingUser, async (req, res) => {
   try {
     const { userId, screenerId } = req.params;
     const result = await savedScreenersService.deleteScreener(
@@ -217,7 +220,7 @@ router.patch('/:userId/:screenerId/notifications', [
   param('userId').isInt({ min: 1 }).withMessage('Valid user ID required'),
   param('screenerId').isInt({ min: 1 }).withMessage('Valid screener ID required'),
   body('enabled').isBoolean().withMessage('Enabled status required')
-], validate, async (req, res) => {
+], validate, requireMatchingUser, async (req, res) => {
   try {
     const { userId, screenerId } = req.params;
     const { enabled } = req.body;

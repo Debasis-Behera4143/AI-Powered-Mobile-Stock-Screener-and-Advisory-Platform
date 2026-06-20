@@ -5,11 +5,15 @@
 
 const express = require('express');
 const router = express.Router();
+const path = require('path');
 const backgroundEvaluator = require('../services/backgroundEvaluator.service');
 const auditService = require('../services/audit.service');
 const queryCache = require('../services/queryCache.service');
 const pool = require('../database');
 const dhanImportService = require('../services/dhanImport.service');
+const { requireAdmin } = require('../middleware/auth.middleware');
+
+router.use(requireAdmin);
 
 /**
  * @route   GET /api/admin/status
@@ -158,6 +162,21 @@ router.post('/dhan/import', async (req, res) => {
   try {
     const replaceExisting = req.query.replace !== 'false';
     const csvPath = req.body?.csv_path;
+
+    if (csvPath) {
+      const dataDir = path.resolve(__dirname, '..', 'data');
+      const resolvedPath = path.resolve(csvPath);
+      const relative = path.relative(dataDir, resolvedPath);
+
+      if (relative.startsWith('..') || path.isAbsolute(relative)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Security Validation Error',
+          message: 'Access denied: CSV path must reside inside the backend/data directory.'
+        });
+      }
+    }
+
     const result = await dhanImportService.importDhanCsv({
       csvPath,
       replaceExisting

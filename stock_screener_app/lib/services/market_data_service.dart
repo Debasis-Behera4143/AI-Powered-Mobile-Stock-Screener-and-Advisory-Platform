@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/stock_model.dart';
 import 'api_config.dart';
+import 'auth_service.dart';
 
 /// Production-grade Market Data Service
 /// Uses backend Finnhub API as single source of truth
@@ -129,7 +130,10 @@ class MarketDataService {
   static Future<List<Map<String, dynamic>>> getWatchlist(int userId) async {
     try {
       final response = await http
-          .get(Uri.parse('$_baseUrl/api/watchlist/$userId'))
+          .get(
+            Uri.parse('$_baseUrl/api/watchlist/$userId'),
+            headers: AuthService.instance.authorizedHeaders(jsonContent: false),
+          )
           .timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 200) {
@@ -154,7 +158,10 @@ class MarketDataService {
   static Future<Map<String, dynamic>> getPortfolio(int userId) async {
     try {
       final response = await http
-          .get(Uri.parse('$_baseUrl/api/portfolio/$userId'))
+          .get(
+            Uri.parse('$_baseUrl/api/portfolio/$userId'),
+            headers: AuthService.instance.authorizedHeaders(jsonContent: false),
+          )
           .timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 200) {

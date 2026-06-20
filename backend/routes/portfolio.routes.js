@@ -7,6 +7,9 @@ const express = require('express');
 const router = express.Router();
 const portfolioService = require('../services/portfolio.service');
 const { body, param, validationResult } = require('express-validator');
+const { authenticateRequired, requireMatchingUser } = require('../middleware/auth.middleware');
+
+router.use(authenticateRequired);
 
 /**
  * Validation middleware
@@ -29,7 +32,7 @@ const validate = (req, res, next) => {
  */
 router.get('/:userId', [
   param('userId').isInt({ min: 1 }).withMessage('Valid user ID required')
-], validate, async (req, res) => {
+], validate, requireMatchingUser, async (req, res) => {
   try {
     const { userId } = req.params;
 
@@ -64,7 +67,7 @@ router.post('/add', [
   body('symbol').isString().trim().isLength({ min: 1, max: 20 }).withMessage('Valid stock symbol required'),
   body('quantity').isFloat({ min: 0.0001 }).withMessage('Quantity must be greater than 0'),
   body('avgPrice').isFloat({ min: 0.01 }).withMessage('Average price must be greater than 0')
-], validate, async (req, res) => {
+], validate, requireMatchingUser, async (req, res) => {
   try {
     const { userId, symbol, quantity, avgPrice } = req.body;
 
@@ -100,7 +103,7 @@ router.post('/add', [
 router.delete('/remove', [
   body('userId').isInt({ min: 1 }).withMessage('Valid user ID required'),
   body('symbol').isString().trim().isLength({ min: 1, max: 20 }).withMessage('Valid stock symbol required')
-], validate, async (req, res) => {
+], validate, requireMatchingUser, async (req, res) => {
   try {
     const { userId, symbol } = req.body;
 
@@ -132,7 +135,7 @@ router.put('/update', [
   body('symbol').isString().trim().isLength({ min: 1, max: 20 }).withMessage('Valid stock symbol required'),
   body('quantity').isFloat({ min: 0.0001 }).withMessage('Quantity must be greater than 0'),
   body('avgPrice').isFloat({ min: 0.01 }).withMessage('Average price must be greater than 0')
-], validate, async (req, res) => {
+], validate, requireMatchingUser, async (req, res) => {
   try {
     const { userId, symbol, quantity, avgPrice } = req.body;
 

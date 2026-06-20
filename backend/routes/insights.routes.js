@@ -205,10 +205,10 @@ router.post('/stock-deep-dive', async (req, res) => {
         market_cap: analysis.fundamentals.market_cap
       },
       investment_thesis: {
-        bull_case: this.generateBullCase(analysis),
-        bear_case: this.generateBearCase(analysis),
-        key_risks: this.identifyKeyRisks(analysis),
-        catalysts: this.identifyCatalysts(analysis)
+        bull_case: generateBullCase(analysis),
+        bear_case: generateBearCase(analysis),
+        key_risks: identifyKeyRisks(analysis),
+        catalysts: identifyCatalysts(analysis)
       },
       financial_health: {
         profitability: {
@@ -219,7 +219,7 @@ router.post('/stock-deep-dive', async (req, res) => {
         valuation: {
           pe_ratio: analysis.fundamentals.pe_ratio,
           peg_ratio: analysis.fundamentals.peg_ratio,
-          interpretation: this.interpretValuation(analysis.fundamentals)
+          interpretation: interpretValuation(analysis.fundamentals)
         },
         growth: {
           revenue_growth: analysis.fundamentals.revenue_growth,
@@ -256,7 +256,7 @@ router.post('/stock-deep-dive', async (req, res) => {
         change_last_quarter: '+2.3%',
         interpretation: 'Strong institutional support indicates professional confidence'
       },
-      actionable_insights: this.generateActionableInsights(analysis)
+      actionable_insights: generateActionableInsights(analysis)
     };
 
     res.json({

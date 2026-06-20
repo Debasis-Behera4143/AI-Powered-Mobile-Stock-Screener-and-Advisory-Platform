@@ -217,11 +217,13 @@ class _PortfolioScreenPremiumState extends State<PortfolioScreenPremium> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: const Color(0xFFF6FAFF),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: _loadPortfolio,
+          color: isDark ? const Color(0xFF00F5FF) : PremiumColors.neonTeal,
           child: _isLoading
               ? const Center(child: CircularProgressIndicator())
               : _error != null
@@ -244,12 +246,18 @@ class _PortfolioScreenPremiumState extends State<PortfolioScreenPremium> {
                     const SizedBox(height: PremiumUI.spacingXL),
                     Row(
                       children: [
-                        Text('Holdings', style: PremiumTypography.h3),
+                        Text(
+                          'Holdings',
+                          style: PremiumTypography.h3.copyWith(
+                            color: isDark ? Colors.white : PremiumColors.textPrimary,
+                          ),
+                        ),
                         const SizedBox(width: 8),
                         Text(
                           '${_holdings.length} positions',
                           style: PremiumTypography.caption.copyWith(
                             fontWeight: FontWeight.w700,
+                            color: isDark ? const Color(0xFF8C7FA6) : PremiumColors.textMuted,
                           ),
                         ),
                         const Spacer(),
@@ -257,6 +265,9 @@ class _PortfolioScreenPremiumState extends State<PortfolioScreenPremium> {
                           onPressed: _addPositionDialog,
                           icon: const Icon(Icons.add_rounded, size: 18),
                           label: const Text('Add'),
+                          style: TextButton.styleFrom(
+                            foregroundColor: isDark ? const Color(0xFF00F5FF) : PremiumColors.neonTeal,
+                          ),
                         ),
                       ],
                     ),
@@ -281,7 +292,7 @@ class _PortfolioScreenPremiumState extends State<PortfolioScreenPremium> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _addPositionDialog,
-        backgroundColor: PremiumColors.neonTeal,
+        backgroundColor: isDark ? const Color(0xFFA855F7) : PremiumColors.neonTeal,
         foregroundColor: PremiumColors.textOnAccent,
         icon: const Icon(Icons.add_rounded),
         label: const Text('Add Position'),
@@ -290,6 +301,7 @@ class _PortfolioScreenPremiumState extends State<PortfolioScreenPremium> {
   }
 
   Widget _buildAccountHero() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return AnimatedBuilder(
       animation: AuthService.instance,
       builder: (context, _) {
@@ -298,11 +310,9 @@ class _PortfolioScreenPremiumState extends State<PortfolioScreenPremium> {
         return PremiumCard(
           borderRadius: BorderRadius.circular(20),
           padding: const EdgeInsets.all(PremiumUI.spacingM),
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFF1E3A8A), Color(0xFF2563EB)],
-          ),
+          gradient: isDark
+              ? PremiumColors.purpleGradient
+              : PremiumColors.primaryGradient,
           child: Column(
             children: [
               Row(
@@ -404,27 +414,22 @@ class _PortfolioScreenPremiumState extends State<PortfolioScreenPremium> {
           borderRadius: BorderRadius.circular(18),
           padding: const EdgeInsets.all(PremiumUI.spacingM),
           gradient: positive
-              ? const LinearGradient(
-                  colors: [Color(0xFFECFDF5), Color(0xFFD1FAE5)],
-                )
-              : const LinearGradient(
-                  colors: [Color(0xFFFFF1F2), Color(0xFFFFE4E6)],
-                ),
+              ? PremiumColors.profitGradient
+              : PremiumColors.lossGradient,
           child: Row(
             children: [
               Container(
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: (positive ? PremiumColors.profit : PremiumColors.loss)
-                      .withValues(alpha: 0.15),
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
                   positive
                       ? Icons.trending_up_rounded
                       : Icons.trending_down_rounded,
-                  color: positive ? PremiumColors.profit : PremiumColors.loss,
+                  color: Colors.white,
                 ),
               ),
               const SizedBox(width: 10),
@@ -436,7 +441,7 @@ class _PortfolioScreenPremiumState extends State<PortfolioScreenPremium> {
                       'Total Profit and Loss',
                       style: PremiumTypography.caption.copyWith(
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF334155),
+                        color: Colors.white70,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -444,9 +449,7 @@ class _PortfolioScreenPremiumState extends State<PortfolioScreenPremium> {
                       '${positive ? '+' : ''}${_currency(pnl)} (${positive ? '+' : ''}${pnlPercent.toStringAsFixed(2)}%)',
                       style: PremiumTypography.body1.copyWith(
                         fontWeight: FontWeight.w700,
-                        color: positive
-                            ? PremiumColors.profit
-                            : PremiumColors.loss,
+                        color: Colors.white,
                       ),
                     ),
                   ],
@@ -484,20 +487,25 @@ class _PortfolioScreenPremiumState extends State<PortfolioScreenPremium> {
     required String value,
     required IconData icon,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return PremiumCard(
       borderRadius: BorderRadius.circular(16),
       padding: const EdgeInsets.all(PremiumUI.spacingM),
-      backgroundColor: Colors.white,
+      useGlass: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: PremiumColors.neonTeal, size: 20),
+          Icon(
+            icon,
+            color: isDark ? const Color(0xFF00F5FF) : PremiumColors.neonTeal,
+            size: 20,
+          ),
           const SizedBox(height: 8),
           Text(
             label,
             style: PremiumTypography.caption.copyWith(
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF64748B),
+              color: isDark ? const Color(0xFF8C7FA6) : const Color(0xFF64748B),
             ),
           ),
           const SizedBox(height: 4),
@@ -507,7 +515,7 @@ class _PortfolioScreenPremiumState extends State<PortfolioScreenPremium> {
             overflow: TextOverflow.ellipsis,
             style: PremiumTypography.body2.copyWith(
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF0F172A),
+              color: isDark ? Colors.white : const Color(0xFF0F172A),
             ),
           ),
         ],
@@ -516,6 +524,7 @@ class _PortfolioScreenPremiumState extends State<PortfolioScreenPremium> {
   }
 
   Widget _buildHoldingCard(Map<String, dynamic> holding) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final symbol = (holding['symbol']?.toString().trim().isNotEmpty == true)
         ? holding['symbol'].toString()
         : 'NA';
@@ -532,7 +541,7 @@ class _PortfolioScreenPremiumState extends State<PortfolioScreenPremium> {
       child: PremiumCard(
         borderRadius: BorderRadius.circular(16),
         padding: const EdgeInsets.all(PremiumUI.spacingM),
-        backgroundColor: Colors.white,
+        useGlass: true,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -546,6 +555,7 @@ class _PortfolioScreenPremiumState extends State<PortfolioScreenPremium> {
                         symbol,
                         style: PremiumTypography.body1.copyWith(
                           fontWeight: FontWeight.w700,
+                          color: isDark ? Colors.white : PremiumColors.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -554,7 +564,7 @@ class _PortfolioScreenPremiumState extends State<PortfolioScreenPremium> {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: PremiumTypography.caption.copyWith(
-                          color: const Color(0xFF64748B),
+                          color: isDark ? const Color(0xFF8C7FA6) : const Color(0xFF64748B),
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -604,16 +614,20 @@ class _PortfolioScreenPremiumState extends State<PortfolioScreenPremium> {
   }
 
   Widget _buildInfoChip(String label, String value) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
       decoration: BoxDecoration(
-        color: const Color(0xFFF1F5F9),
+        color: isDark ? const Color(0xFF1E143A) : const Color(0xFFF1F5F9),
         borderRadius: BorderRadius.circular(9),
+        border: Border.all(
+          color: isDark ? const Color(0x3300F5FF) : Colors.transparent,
+        ),
       ),
       child: Text(
         '$label: $value',
         style: PremiumTypography.caption.copyWith(
-          color: const Color(0xFF334155),
+          color: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF334155),
           fontWeight: FontWeight.w700,
         ),
       ),

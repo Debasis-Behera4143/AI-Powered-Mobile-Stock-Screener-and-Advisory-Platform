@@ -267,7 +267,7 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                           vertical: PremiumUI.spacingS,
                         ),
                         decoration: BoxDecoration(
-                          color: changeColor.withOpacity(0.1),
+                          color: changeColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(
                             PremiumUI.radiusM,
                           ),
@@ -531,8 +531,8 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
     final padding = (maxY - minY) * 0.1;
 
     final closeColor = PremiumColors.neonTeal;
-    final highColor = PremiumColors.profit.withOpacity(0.6);
-    final lowColor = PremiumColors.loss.withOpacity(0.6);
+    final highColor = PremiumColors.profit.withValues(alpha: 0.6);
+    final lowColor = PremiumColors.loss.withValues(alpha: 0.6);
 
     return Column(
       children: [
@@ -545,7 +545,7 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                 horizontalInterval: (maxY - minY) / 4,
                 getDrawingHorizontalLine: (value) {
                   return FlLine(
-                    color: Colors.white.withOpacity(0.05),
+                    color: Colors.white.withValues(alpha: 0.05),
                     strokeWidth: 1,
                   );
                 },
@@ -580,8 +580,9 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                     interval: _candles.length / 4,
                     getTitlesWidget: (value, meta) {
                       final index = value.toInt();
-                      if (index < 0 || index >= _candles.length)
+                      if (index < 0 || index >= _candles.length) {
                         return const SizedBox.shrink();
+                      }
                       final time = _candles[index].time;
                       return Padding(
                         padding: const EdgeInsets.only(top: 8),
@@ -616,8 +617,8 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                     show: true,
                     gradient: LinearGradient(
                       colors: [
-                        closeColor.withOpacity(0.3),
-                        closeColor.withOpacity(0.0),
+                        closeColor.withValues(alpha: 0.3),
+                        closeColor.withValues(alpha: 0.0),
                       ],
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
@@ -691,7 +692,7 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
             barRods: [
               BarChartRodData(
                 toY: entry.value.volume,
-                color: PremiumColors.neonTeal.withOpacity(0.6),
+                color: PremiumColors.neonTeal.withValues(alpha: 0.6),
                 width: 4,
                 borderRadius: BorderRadius.circular(2),
               ),
@@ -987,7 +988,7 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               DropdownButtonFormField<String>(
-                value: selectedType,
+                initialValue: selectedType,
                 decoration: const InputDecoration(labelText: 'Condition'),
                 items: const [
                   DropdownMenuItem(

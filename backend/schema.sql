@@ -82,6 +82,8 @@ CREATE TABLE fundamentals (
   revenue_growth DECIMAL(10, 2),
   market_cap BIGINT,
   eps DECIMAL(10, 2),
+  roe DECIMAL(10, 2),
+  roa DECIMAL(10, 2),
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   UNIQUE(symbol)
 );

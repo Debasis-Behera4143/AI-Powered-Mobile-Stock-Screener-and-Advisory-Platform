@@ -114,14 +114,23 @@ router.get('/', async (req, res) => {
 router.get('/sectors', async (req, res) => {
   try {
     const cacheKey = 'all_sectors';
-    let sectors = cache.get(cacheKey);
+    const cachedSectors = await cache.get(cacheKey);
+    let sectors;
+
+    if (cachedSectors) {
+      try {
+        sectors = JSON.parse(cachedSectors);
+      } catch (e) {
+        sectors = null;
+      }
+    }
 
     if (!sectors) {
       const result = await db.query(
         'SELECT DISTINCT sector FROM companies WHERE sector IS NOT NULL ORDER BY sector'
       );
       sectors = result.rows.map(row => row.sector);
-      cache.set(cacheKey, sectors, 3600); // Cache for 1 hour
+      await cache.set(cacheKey, sectors, 3600); // Cache for 1 hour
     }
 
     res.json({

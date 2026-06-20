@@ -43,6 +43,12 @@ dependencies:
   
   # Shared preferences for local storage
   shared_preferences: ^2.2.2
+
+  # Secure storage for authentication tokens.
+  flutter_secure_storage: ^9.2.2
+
+  # Google account sign-in; requires platform OAuth configuration.
+  google_sign_in: ^6.2.1
   
   # Icons
   font_awesome_flutter: ^10.7.0

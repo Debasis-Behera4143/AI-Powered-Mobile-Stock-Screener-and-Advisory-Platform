@@ -9,6 +9,9 @@ const db = require('../database');
 const { body, param, validationResult } = require('express-validator');
 const DataFreshnessService = require('../services/dataFreshness.service');
 const finnhubService = require('../services/finnhub.service');
+const { authenticateRequired, requireMatchingUser } = require('../middleware/auth.middleware');
+
+router.use(authenticateRequired);
 
 /**
  * Validation middleware
@@ -31,7 +34,7 @@ const validate = (req, res, next) => {
  */
 router.get('/:userId', [
   param('userId').isInt({ min: 1 }).withMessage('Valid user ID required')
-], validate, async (req, res) => {
+], validate, requireMatchingUser, async (req, res) => {
   try {
     const { userId } = req.params;
 
@@ -150,7 +153,7 @@ router.get('/:userId', [
 router.post('/add', [
   body('userId').isInt({ min: 1 }).withMessage('Valid user ID required'),
   body('symbol').isString().trim().isLength({ min: 1, max: 20 }).withMessage('Valid stock symbol required')
-], validate, async (req, res) => {
+], validate, requireMatchingUser, async (req, res) => {
   try {
     const { userId, symbol } = req.body;
 
@@ -214,7 +217,7 @@ router.post('/add', [
 router.delete('/remove', [
   body('userId').isInt({ min: 1 }).withMessage('Valid user ID required'),
   body('symbol').isString().trim().isLength({ min: 1, max: 20 }).withMessage('Valid stock symbol required')
-], validate, async (req, res) => {
+], validate, requireMatchingUser, async (req, res) => {
   try {
     const { userId, symbol } = req.body;
 
@@ -270,7 +273,7 @@ router.delete('/remove', [
 router.get('/:userId/check/:symbol', [
   param('userId').isInt({ min: 1 }).withMessage('Valid user ID required'),
   param('symbol').isString().trim().isLength({ min: 1, max: 20 }).withMessage('Valid symbol required')
-], validate, async (req, res) => {
+], validate, requireMatchingUser, async (req, res) => {
   try {
     const { userId, symbol } = req.params;
 

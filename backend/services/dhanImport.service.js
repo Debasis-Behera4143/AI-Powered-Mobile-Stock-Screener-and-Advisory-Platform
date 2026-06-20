@@ -3,7 +3,12 @@ const path = require("path");
 const { parse } = require("csv-parse/sync");
 const pool = require("../database");
 
-const DEFAULT_CSV_PATH = path.resolve(__dirname, "..", "..", "Dhan - All Stocks List (1).csv");
+const DEFAULT_CSV_PATH = path.resolve(
+  __dirname,
+  "..",
+  "data",
+  "Dhan - All Stocks List (1).csv"
+);
 
 async function ensureDhanData() {
   try {

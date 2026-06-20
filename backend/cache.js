@@ -54,4 +54,25 @@ module.exports = {
       // Silently fail if Redis is down
     }
   },
+  async set(key, value, ttlSeconds) {
+    if (!isConnected) return;
+    try {
+      const valStr = typeof value === 'string' ? value : JSON.stringify(value);
+      if (ttlSeconds) {
+        await client.setEx(key, ttlSeconds, valStr);
+      } else {
+        await client.set(key, valStr);
+      }
+    } catch (err) {
+      // Silently fail if Redis is down
+    }
+  },
+  async del(key) {
+    if (!isConnected) return;
+    try {
+      await client.del(key);
+    } catch (err) {
+      // Silently fail if Redis is down
+    }
+  }
 };

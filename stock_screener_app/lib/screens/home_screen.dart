@@ -314,7 +314,7 @@ class _HomeScreenState extends State<HomeScreen>
                               borderRadius: BorderRadius.circular(16),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.05),
+                                  color: Colors.black.withValues(alpha: 0.05),
                                   blurRadius: 10,
                                   offset: const Offset(0, 4),
                                 ),
@@ -450,9 +450,9 @@ class _HomeScreenState extends State<HomeScreen>
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: colorScheme.surfaceContainerHighest.withOpacity(0.5),
+            color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: colorScheme.outline.withOpacity(0.2)),
+            border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
           ),
           child: Row(
             children: [
@@ -474,7 +474,7 @@ class _HomeScreenState extends State<HomeScreen>
               Icon(
                 Icons.arrow_forward_ios,
                 size: 16,
-                color: colorScheme.onSurfaceVariant.withOpacity(0.5),
+                color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
               ),
             ],
           ),
@@ -555,7 +555,7 @@ class _HomeScreenState extends State<HomeScreen>
           end: Alignment.bottomRight,
           colors: [
             colorScheme.primaryContainer,
-            colorScheme.primaryContainer.withOpacity(0.7),
+            colorScheme.primaryContainer.withValues(alpha: 0.7),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
@@ -576,7 +576,7 @@ class _HomeScreenState extends State<HomeScreen>
             subtitle,
             style: TextStyle(
               fontSize: 12,
-              color: colorScheme.onPrimaryContainer.withOpacity(0.7),
+              color: colorScheme.onPrimaryContainer.withValues(alpha: 0.7),
             ),
             textAlign: TextAlign.center,
           ),

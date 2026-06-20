@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import 'api_config.dart';
+import 'auth_service.dart';
 
 class WatchlistApiService {
   String get baseUrl => '${ApiConfig.baseUrl}/api/watchlist';
@@ -10,7 +11,10 @@ class WatchlistApiService {
   /// Get user's watchlist with normalized stock fields.
   Future<List<Map<String, dynamic>>> getWatchlist(int userId) async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/$userId'));
+      final response = await http.get(
+        Uri.parse('$baseUrl/$userId'),
+        headers: AuthService.instance.authorizedHeaders(jsonContent: false),
+      );
 
       if (response.statusCode != 200) {
         throw Exception('Failed to fetch watchlist: ${response.statusCode}');
@@ -37,7 +41,7 @@ class WatchlistApiService {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/add'),
-        headers: {'Content-Type': 'application/json'},
+        headers: AuthService.instance.authorizedHeaders(),
         body: json.encode({'userId': userId, 'symbol': symbol.toUpperCase()}),
       );
 
@@ -63,7 +67,7 @@ class WatchlistApiService {
     try {
       final response = await http.delete(
         Uri.parse('$baseUrl/remove'),
-        headers: {'Content-Type': 'application/json'},
+        headers: AuthService.instance.authorizedHeaders(),
         body: json.encode({'userId': userId, 'symbol': symbol.toUpperCase()}),
       );
 
@@ -85,6 +89,7 @@ class WatchlistApiService {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/$userId/check/${symbol.toUpperCase()}'),
+        headers: AuthService.instance.authorizedHeaders(jsonContent: false),
       );
 
       if (response.statusCode == 200) {

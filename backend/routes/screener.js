@@ -7,6 +7,10 @@ const { validateDSL } = require("../services/validationService");
 const queryCache = require("../services/queryCache.service");
 const responseFormatter = require("../utils/responseFormatter");
 const logger = require("../utils/logger");
+const {
+  enrichWithLiveQuotes,
+  withSheetPriceFields
+} = require("../controllers/stocks.controller");
 
 const SUPPORTED_SCREENER_FIELDS = [
   "pe_ratio",
@@ -81,7 +85,16 @@ router.post("/screener", async (req, res) => {
       );
     }
 
+    const liveRequested = req.query.live !== "false";
+    const liveEnabled = process.env.USE_LIVE_MARKET_DATA === "true" && liveRequested;
+    const liveLimit = clamp(
+      parseInt(req.query.live_limit || process.env.LIVE_QUOTE_BATCH_LIMIT || "50", 10),
+      0,
+      100
+    );
+
     const bypassCache =
+      liveEnabled ||
       req.query.fresh === "true" ||
       /\b(latest|live|real[\s-]?time|today|now)\b/i.test(query);
     
@@ -109,20 +122,16 @@ router.post("/screener", async (req, res) => {
     
     logger.info(logger.LOG_CATEGORIES.API, 'Screener query executed', {
       stocks_found: result.rows.length,
-      source: 'DHAN_CSV'
+      source: liveEnabled ? 'DHAN_CSV_PLUS_LIVE_QUOTES' : 'DHAN_CSV'
     });
 
-    // Dhan CSV data already has complete pricing - no need for external enrichment
-    // Map to consistent response format
-    const enrichedResults = result.rows.map(stock => ({
-      ...stock,
-      current_price: stock.ltp || 0,
-      status: 'loaded_from_csv',
-      data_source: 'DHAN_CSV'
-    }));
+    const enrichedResults = liveEnabled
+      ? await enrichWithLiveQuotes(result.rows, liveLimit)
+      : withSheetPriceFields(result.rows);
 
-    // Cache Dhan results with short TTL so query output remains responsive.
-    await queryCache.set(dsl, enrichedResults, 120);
+    if (!liveEnabled) {
+      await queryCache.set(dsl, enrichedResults, 120);
+    }
 
     res.json(
       responseFormatter.success(enrichedResults, {
@@ -130,7 +139,14 @@ router.post("/screener", async (req, res) => {
         cache_bypassed: bypassCache,
         execution_time_ms: Date.now() - startTime,
         count: enrichedResults.length,
-        source: 'DHAN_CSV',
+        source: liveEnabled ? 'DHAN_CSV_PLUS_LIVE_QUOTES' : 'DHAN_CSV',
+        live_market_data: {
+          requested: liveRequested,
+          enabled: liveEnabled,
+          provider: "FINNHUB",
+          enriched_count: enrichedResults.filter((stock) => stock.is_real_data).length,
+          limit: liveLimit
+        },
         applied_filters: dsl.filters,
         ignored_filters: diagnostics.ignoredFilters
       })
@@ -282,6 +298,14 @@ function normalizeDsl(dsl) {
     dsl: normalized,
     diagnostics: { ignoredFilters }
   };
+}
+
+function clamp(value, min, max) {
+  if (!Number.isFinite(value)) {
+    return min;
+  }
+
+  return Math.min(Math.max(value, min), max);
 }
 
 function hasNumericConstraintIntent(query) {

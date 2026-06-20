@@ -27,6 +27,7 @@ class FinnhubService {
     this.baseUrl = "https://finnhub.io/api/v1";
     this.timeout = 10000; // 10 second timeout
     this.cacheTTL = parseInt(process.env.REDIS_CACHE_TTL_SECONDS || 300); // 5 minutes
+    this.allowMockData = process.env.USE_MOCK_DATA !== "false";
     
     // Rate limiting tracking
     this.callsThisMinute = 0;
@@ -60,7 +61,13 @@ class FinnhubService {
     // Indian stocks default to NSE (.NS)
     // US stocks have no suffix
     // This is a simple heuristic - customize as needed
-    const indianStocks = ['TCS', 'INFY', 'RELIANCE', 'HDFCBANK', 'ICICIBANK', 'SBIN', 'WIPRO', 'HCLTECH'];
+    const indianStocks = [
+      'RELIANCE', 'HDFCBANK', 'BHARTIARTL', 'TCS', 'ICICIBANK', 'SBIN',
+      'INFY', 'WIPRO', 'HCLTECH', 'TECHM', 'AXISBANK', 'KOTAKBANK',
+      'HINDUNILVR', 'ITC', 'LT', 'BAJFINANCE', 'ASIANPAINT', 'MARUTI',
+      'TITAN', 'SUNPHARMA', 'TATAMOTORS', 'TATASTEEL', 'NTPC', 'POWERGRID',
+      'M&M', 'ULTRACEMCO', 'NESTLEIND', 'ONGC'
+    ];
     if (indianStocks.includes(upper)) {
       return `${upper}.NS`;
     }
@@ -557,6 +564,10 @@ class FinnhubService {
         fallbackReason = "FINNHUB_API_KEY not configured";
       }
 
+      if (!this.allowMockData) {
+        throw new Error(fallbackReason || "Live market data unavailable");
+      }
+
       // Step 3: Fallback to mock
       console.log(`  Using mock data for ${normalizedSymbol}`);
       const mockData = this.generateMockData(normalizedSymbol);
@@ -575,6 +586,10 @@ class FinnhubService {
     } catch (error) {
       console.error(`[FINNHUB] Error getting quote for ${normalizedSymbol}:`, error.message);
       
+      if (!this.allowMockData) {
+        throw error;
+      }
+
       // Last resort: return mock data
       const mockData = this.generateMockData(normalizedSymbol);
       return this.normalizeQuote(
@@ -601,15 +616,12 @@ class FinnhubService {
     const promises = symbols.map(symbol => 
       this.getQuote(symbol).catch(error => {
         console.error(`  Error fetching ${symbol}:`, error.message);
-        return this.normalizeQuote(
-          this.generateMockData(symbol),
-          symbol,
-          'MOCK'
-        );
+        if (!this.allowMockData) return null;
+        return this.normalizeQuote(this.generateMockData(symbol), symbol, 'MOCK');
       })
     );
 
-    const results = await Promise.all(promises);
+    const results = (await Promise.all(promises)).filter(Boolean);
     
     const realDataCount = results.filter(r => r.is_real_data).length;
     console.log(`[FINNHUB] Retrieved ${realDataCount}/${symbols.length} real quotes`);
@@ -659,6 +671,10 @@ class FinnhubService {
         fallbackReason = "FINNHUB_API_KEY not configured";
       }
 
+      if (!this.allowMockData) {
+        throw new Error(fallbackReason || "Live candle data unavailable");
+      }
+
       const mockData = this.generateMockCandles(normalizedSymbol, resolution, from, to);
       const result = this.normalizeCandles(
         mockData,
@@ -670,6 +686,10 @@ class FinnhubService {
       return result;
     } catch (error) {
       console.error(`[FINNHUB] Error getting candles for ${normalizedSymbol}:`, error.message);
+      if (!this.allowMockData) {
+        throw error;
+      }
+
       const mockData = this.generateMockCandles(normalizedSymbol, resolution, from, to);
       return this.normalizeCandles(
         mockData,
@@ -703,7 +723,8 @@ class FinnhubService {
       rate_limit_min: parseInt(process.env.FINNHUB_RATE_LIMIT_CALLS_PER_MIN || 60),
       rate_limit_day: parseInt(process.env.FINNHUB_RATE_LIMIT_CALLS_PER_DAY || 250),
       cache_size_memory: this.memoryCache.size,
-      cache_ttl_seconds: this.cacheTTL
+      cache_ttl_seconds: this.cacheTTL,
+      mock_fallback_enabled: this.allowMockData
     };
   }
 }

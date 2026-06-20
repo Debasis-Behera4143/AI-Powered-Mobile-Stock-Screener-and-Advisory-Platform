@@ -207,7 +207,7 @@ class _RealtimeStockCardState extends State<RealtimeStockCard> {
             dotData: const FlDotData(show: false),
             belowBarData: BarAreaData(
               show: true,
-              color: (isPositive ? Colors.green : Colors.red).withOpacity(0.1),
+              color: (isPositive ? Colors.green : Colors.red).withValues(alpha: 0.1),
             ),
           ),
         ],

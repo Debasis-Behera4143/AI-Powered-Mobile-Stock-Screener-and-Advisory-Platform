@@ -26,7 +26,7 @@ class StockScreenerApp extends StatelessWidget {
       title: 'EquiScan',
       theme: PremiumTheme.lightTheme,
       darkTheme: PremiumTheme.darkTheme,
-      themeMode: ThemeMode.light,
+      themeMode: ThemeMode.system,
       home: const MainNavigation(),
     );
   }

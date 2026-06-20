@@ -1,4 +1,5 @@
 require("dotenv").config();
+validateProductionConfig();
 const app = require("./app");
 const pool = require("./database");
 const dhanImportService = require("./services/dhanImport.service");
@@ -15,6 +16,26 @@ const enableAdbReverse =
 const adbReversedDevices = new Set();
 let adbUnavailableLogged = false;
 let adbNoDeviceLogged = false;
+
+function validateProductionConfig() {
+  if (process.env.NODE_ENV !== "production") return;
+
+  const missing = [];
+  if (!process.env.DATABASE_URL && !process.env.DB_HOST) missing.push("DATABASE_URL or DB_HOST");
+  if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) missing.push("JWT_SECRET");
+  if (!process.env.ADMIN_API_KEY || process.env.ADMIN_API_KEY.length < 32) missing.push("ADMIN_API_KEY");
+  if (!process.env.CORS_ORIGINS) missing.push("CORS_ORIGINS");
+  if (!process.env.OTP_DELIVERY_WEBHOOK_URL) missing.push("OTP_DELIVERY_WEBHOOK_URL");
+
+  if (missing.length > 0) {
+    throw new Error(`Production configuration missing: ${missing.join(", ")}`);
+  }
+
+  const otpWebhookUrl = new URL(process.env.OTP_DELIVERY_WEBHOOK_URL);
+  if (otpWebhookUrl.protocol !== "https:") {
+    throw new Error("OTP_DELIVERY_WEBHOOK_URL must use https:// in production");
+  }
+}
 
 function getLocalIPv4Addresses() {
   const interfaces = os.networkInterfaces();

@@ -29,18 +29,35 @@ class PremiumCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final fallbackColor = Theme.of(context).cardTheme.color ?? PremiumColors.cardBg;
     final content = Container(
       height: height,
       width: width,
       padding: padding ?? const EdgeInsets.all(PremiumUI.spacingL),
       decoration: BoxDecoration(
-        color: useGlass ? null : (backgroundColor ?? PremiumColors.cardBg),
+        color: useGlass ? null : (backgroundColor ?? fallbackColor),
         gradient: gradient,
         borderRadius: borderRadius ?? BorderRadius.circular(PremiumUI.radiusXL),
         border: useGlass
-            ? Border.all(color: PremiumColors.overlay, width: 1)
+            ? Border.all(
+                color: isDark
+                    ? const Color(0x3300F5FF) // Glow Cyber Cyan Border
+                    : const Color(0x33A855F7), // Soft Amethyst Border
+                width: 1,
+              )
             : null,
-        boxShadow: useGlass ? null : PremiumUI.softShadow(),
+        boxShadow: useGlass
+            ? [
+                BoxShadow(
+                  color: isDark ? Colors.black.withOpacity(0.2) : Colors.black.withOpacity(0.03),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                )
+              ]
+            : PremiumUI.softShadow(
+                color: isDark ? Colors.black.withOpacity(0.5) : null,
+              ),
       ),
       child: useGlass
           ? ClipRRect(
@@ -49,7 +66,11 @@ class PremiumCard extends StatelessWidget {
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                 child: Container(
-                  decoration: BoxDecoration(color: PremiumColors.glassBg),
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? const Color(0x1F130E26) // Frosted Cyber Amethyst
+                        : const Color(0xAAFFFFFF), // Frosted Rose Cream
+                  ),
                   child: child,
                 ),
               ),

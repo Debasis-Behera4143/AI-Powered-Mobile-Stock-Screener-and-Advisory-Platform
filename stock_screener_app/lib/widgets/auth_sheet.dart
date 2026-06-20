@@ -26,9 +26,12 @@ class _AuthSheetState extends State<_AuthSheet> {
   final _registerNameController = TextEditingController();
   final _registerEmailController = TextEditingController();
   final _registerPasswordController = TextEditingController();
+  final _registerOtpController = TextEditingController();
 
   bool _isLoginMode = true;
   bool _isSubmitting = false;
+  bool _otpRequested = false;
+  String? _devOtp;
   String _selectedAvatar = AuthService.avatarOptions.first;
 
   @override
@@ -38,6 +41,7 @@ class _AuthSheetState extends State<_AuthSheet> {
     _registerNameController.dispose();
     _registerEmailController.dispose();
     _registerPasswordController.dispose();
+    _registerOtpController.dispose();
     super.dispose();
   }
 
@@ -82,18 +86,6 @@ class _AuthSheetState extends State<_AuthSheet> {
                 _buildModeToggle(),
                 const SizedBox(height: 16),
                 _isLoginMode ? _buildLoginForm() : _buildRegisterForm(),
-                const SizedBox(height: 14),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: PremiumColors.surfaceBg,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    'Demo account: demo@equiscan.app / Demo@123',
-                    style: PremiumTypography.caption,
-                  ),
-                ),
               ],
             ),
           ),
@@ -184,6 +176,15 @@ class _AuthSheetState extends State<_AuthSheet> {
             label: Text(_isSubmitting ? 'Please wait...' : 'Login'),
           ),
         ),
+        const SizedBox(height: 10),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: _isSubmitting ? null : _submitGoogleLogin,
+            icon: const Icon(Icons.g_mobiledata_rounded),
+            label: const Text('Continue with Google'),
+          ),
+        ),
       ],
     );
   }
@@ -216,10 +217,43 @@ class _AuthSheetState extends State<_AuthSheet> {
           obscureText: true,
           decoration: const InputDecoration(
             labelText: 'Password',
-            hintText: 'Minimum 6 characters',
+            hintText: 'Upper, lower, number, and symbol',
             prefixIcon: Icon(Icons.lock_outline_rounded),
           ),
         ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _registerOtpController,
+                keyboardType: TextInputType.number,
+                maxLength: 6,
+                decoration: const InputDecoration(
+                  counterText: '',
+                  labelText: 'Email OTP',
+                  hintText: '6 digit code',
+                  prefixIcon: Icon(Icons.verified_user_outlined),
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            OutlinedButton(
+              onPressed: _isSubmitting ? null : _requestOtp,
+              child: Text(_otpRequested ? 'Resend' : 'Send OTP'),
+            ),
+          ],
+        ),
+        if (_devOtp != null) ...[
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              'Dev OTP: $_devOtp',
+              style: PremiumTypography.caption,
+            ),
+          ),
+        ],
         const SizedBox(height: 12),
         _buildAvatarPicker(),
         const SizedBox(height: 16),
@@ -315,8 +349,48 @@ class _AuthSheetState extends State<_AuthSheet> {
       name: _registerNameController.text,
       email: _registerEmailController.text,
       password: _registerPasswordController.text,
+      otp: _registerOtpController.text,
       avatarLabel: _selectedAvatar,
     );
+    if (!mounted) return;
+    setState(() => _isSubmitting = false);
+
+    if (result.success) {
+      Navigator.pop(context, true);
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(result.message),
+        backgroundColor: PremiumColors.loss,
+      ),
+    );
+  }
+
+  Future<void> _requestOtp() async {
+    setState(() => _isSubmitting = true);
+    final result = await AuthService.instance.requestRegistrationOtp(
+      email: _registerEmailController.text,
+    );
+    if (!mounted) return;
+    setState(() {
+      _isSubmitting = false;
+      _otpRequested = result.success;
+      _devOtp = result.devOtp;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(result.message),
+        backgroundColor: result.success ? PremiumColors.profit : PremiumColors.loss,
+      ),
+    );
+  }
+
+  Future<void> _submitGoogleLogin() async {
+    setState(() => _isSubmitting = true);
+    final result = await AuthService.instance.loginWithGoogle();
     if (!mounted) return;
     setState(() => _isSubmitting = false);
 

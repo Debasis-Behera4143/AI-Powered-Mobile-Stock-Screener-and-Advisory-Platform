@@ -1,387 +1,222 @@
-# AI-Powered Stock Screener Pro
+﻿# AI-Powered Stock Screener
 
-An intelligent mobile stock screening application powered by AI with **production-grade backend enhancements**.
+Single-source project documentation for the complete system:
+- `backend` (Node.js + Express + PostgreSQL)
+- `stock_screener_app` (Flutter app)
 
-![Flutter](https://img.shields.io/badge/Flutter-3.0+-02569B?logo=flutter)
-![Node.js](https://img.shields.io/badge/Node.js-18+-339933?logo=node.js)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14+-4169E1?logo=postgresql)
-![License](https://img.shields.io/badge/License-MIT-green.svg)
+`ARCHITECTURE.md` is kept separately for system design details.
 
-## Latest Updates (January 2026)
+## Tech Stack
+- Flutter
+- Node.js + Express
+- PostgreSQL
+- Redis (optional cache)
+- Groq API (natural language query parsing)
+- Finnhub API (market data)
 
-### NEWEST: Advanced Dashboard & Premium Theme (Just Added!)
-
-**Complete UI/UX Overhaul:**
-- ✅ **Premium Theme** - Deep Blue & Gold advanced theme with gradients
-- ✅ **Responsive Dashboard** - 6 real-time components with auto-refresh (30s)
-- ✅ **Recent Changes Feed** - Live feed showing what changed in your portfolio
-- ✅ **AI Advisory System** - Smart alerts when stocks are slow or high
-- ✅ **Sector Distribution Chart** - Interactive pie chart (fl_chart)
-- ✅ **Global Query Cache** - Cross-user caching for lightning-fast responses
-- ✅ **System Health Monitor** - Real-time backend status tracking
-
-**New Documentation:**
-- [IMPLEMENTATION_COMPLETE.md](IMPLEMENTATION_COMPLETE.md) - Complete feature summary
-- [QUICK_START.md](QUICK_START.md) - 2-minute quick start guide
-- [DASHBOARD_IMPLEMENTATION.md](DASHBOARD_IMPLEMENTATION.md) - Dashboard details
-- [BEFORE_AFTER.md](BEFORE_AFTER.md) - Visual comparison
-- [TESTING_GUIDE.md](TESTING_GUIDE.md) - Complete testing procedures
-
-**Try It Now:**
-```powershell
-# Terminal 1: Start backend
-cd backend && node server.js
-
-# Terminal 2: Start Flutter app
-cd stock_screener_app && flutter run
+## Repository Structure
+```text
+Stock_screener/
+  backend/                     # API server, DB schema, services, routes
+  stock_screener_app/          # Flutter mobile/web app
+  ARCHITECTURE.md              # High-level architecture
+  README.md                    # This file (single full guide)
 ```
 
----
+## Core Features
+- Natural-language stock screener (`POST /screener`)
+- Watchlist management (`/api/watchlist/*`)
+- Portfolio management (`/api/portfolio/*`)
+- Alerts system with ownership checks (`/api/alerts/*`)
+- Saved screeners (`/api/screeners/*`)
+- Insights/advisory endpoints
+- Admin/health endpoints
+- Multi-user isolation test suite (`npm run test:multiuser`)
 
-### ✨ **Complete FinTech Backend System**
-
-**8 Production-Grade Features Implemented:**
-- ✅ **Portfolio Management** - Full CRUD API for user portfolios
-- ✅ **Condition Evaluation Engine** - Automated state change detection  
-- ✅ **Alert System** - Smart notifications with cooldown logic
-- ✅ **Background Scheduler** - Hourly automated evaluation cycle
-- ✅ **Audit Logging** - Complete operation trail for compliance
-- ✅ **Redis Caching** - High-performance query caching (5min TTL)
-- ✅ **Security & Validation** - Production-ready safeguards
-- ✅ **Admin Monitoring** - Real-time system status dashboard
-
-**Backend Documentation:**
-- [backend/ENHANCEMENT_SUMMARY.md](backend/ENHANCEMENT_SUMMARY.md) - Overview of all backend features
-- [backend/IMPLEMENTATION_GUIDE.md](backend/IMPLEMENTATION_GUIDE.md) - Full technical documentation
-
-**Quick Start (Backend Only):**
-```powershell
-# Setup everything
-.\quick-start-enhanced.ps1
-
-# Test all features
-.\test-enhanced-features.ps1
-```
-
----
-
-## ✨ Features
-
-- **AI-Powered Natural Language Processing** - Search stocks using plain English queries
-- **Advanced Market Insights** - Comprehensive P/E ratio analysis, market cap statistics, and sector distribution
-- **Modern Material Design 3 UI** - Beautiful, responsive interface with smooth animations
-- ⚡ **Real-time Stock Screening** - Fast query processing with optimized database operations
-- **Detailed Stock Cards** - View key metrics including P/E ratio, PEG ratio, debt to FCF, and more
-- **Smart Filtering** - Sort results by market cap, P/E ratio, or PEG ratio
-- **Dark Mode Support** - Automatic theme switching based on system preferences
-- **Server Health Monitoring** - Live backend connection status indicator
-
-## Screenshots
-
-### Home Screen
-- Clean, gradient-based design
-- Real-time server status indicator
-- Example query suggestions
-- Feature highlights
-
-### Results Screen
-- Comprehensive market insights panel
-- Interactive sector distribution charts
-- Sortable stock listings
-- Detailed metric cards with color-coded indicators
-
-## Architecture
-
-### Frontend (Flutter)
-```
-stock_screener_app/
-├── lib/
-│   ├── main.dart                 # App entry point with Material 3 theming
-│   ├── screens/
-│   │   ├── home_screen.dart      # Search interface with server health check
-│   │   └── result_screen.dart    # Results display with enhanced insights
-│   └── services/
-│       └── api_service.dart      # HTTP client for backend communication
-```
-
-### Backend (Node.js + Express)
-```
-backend/
-├── app.js                        # Express app configuration
-├── server.js                     # Server initialization
-├── database.js                   # PostgreSQL connection pool
-├── llm.js                        # Groq AI integration for NLP
-├── compileDSL.js                 # DSL to SQL compiler
-├── cache.js                      # Redis caching (optional)
-├── routes/
-│   └── screener.js              # Stock screening endpoint
-├── services/
-│   ├── marketData.service.js    # Market data operations
-│   └── validationService.js     # Input validation
-└── schema.sql                    # Database schema with sample data
-```
-
-## Quick Start
-
-### Prerequisites
-- Node.js 18+ and npm
+## Prerequisites
+- Node.js 18+ recommended
+- npm 8+
 - PostgreSQL 14+
-- Flutter SDK 3.0+
-- Groq API Key (free at [groq.com](https://groq.com))
-- Redis (optional, for caching)
+- Flutter SDK 3.x
+- Android Studio / Xcode (for mobile builds)
 
-### Backend Setup
+## 1. Local Setup
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd Stock_screener
-   ```
-
-2. **Install backend dependencies**
-   ```bash
-   cd backend
-   npm install
-   ```
-
-3. **Set up PostgreSQL database**
-   ```bash
-   # Create database
-   psql -U postgres
-   CREATE DATABASE stock_screener;
-   \q
-   
-   # Import schema and sample data
-   psql -U postgres -d stock_screener -f schema.sql
-   ```
-
-4. **Configure environment variables**
-   
-   Create `backend/.env`:
-   ```env
-   # Database Configuration
-   DB_HOST=localhost
-   DB_PORT=5432
-   DB_NAME=stock_screener
-   DB_USER=postgres
-   DB_PASSWORD=your_password
-
-   # Server Configuration
-   PORT=5000
-
-   # Groq AI API
-   GROQ_API_KEY=your_groq_api_key
-
-   # Redis (Optional)
-   REDIS_HOST=localhost
-   REDIS_PORT=6379
-   ```
-
-5. **Start the backend server**
-   ```bash
-   npm start
-   ```
-   
-   Server should be running at `http://localhost:5000`
-
-### Flutter App Setup
-
-1. **Navigate to Flutter app directory**
-   ```bash
-   cd stock_screener_app
-   ```
-
-2. **Install dependencies**
-   ```bash
-   flutter pub get
-   ```
-
-3. **Run the app**
-   ```bash
-   # For Android emulator/device
-   flutter run
-   
-   # For iOS simulator (macOS only)
-   flutter run -d ios
-   
-   # For web
-   flutter run -d chrome
-   ```
-
-## Usage Guide
-
-### Example Queries
-
-The app understands natural language queries like:
-
-- **"Show IT stocks with PE below 25"** - IT sector stocks with P/E ratio less than 25
-- **"Finance stocks with PE below 20"** - Banking/Finance stocks with low P/E
-- **"Healthcare stocks with low debt to FCF"** - Healthcare companies with low debt
-- **"IT stocks with PEG ratio less than 2"** - Technology stocks with good growth prospects
-
-### Query Syntax
-
-**Supported Sectors:**
-- IT (Information Technology)
-- Finance (Banking & Financial Services)
-- Healthcare
-- And more (check database)
-
-**Supported Metrics:**
-- `pe_ratio` - Price-to-Earnings Ratio
-- `peg_ratio` - Price/Earnings-to-Growth Ratio
-- `debt_to_fcf` - Debt-to-Free Cash Flow Ratio
-- `market_cap` - Market Capitalization
-- `revenue_growth` - Revenue Growth Percentage
-
-**Operators:**
-- `<` - Less than
-- `>` - Greater than
-- `<=` - Less than or equal to
-- `>=` - Greater than or equal to
-- `=` - Equal to
-
-## Key Features Explained
-
-### Enhanced Market Insights
-- **P/E Ratio Analysis**: Average, minimum, and maximum across results
-- **Market Capitalization**: Total and average market cap with formatted display
-- **Sector Distribution**: Visual progress bars showing stock distribution by sector
-- **Color-Coded Metrics**: Different colors for different metric types
-
-### Smart Stock Cards
-- Gradient backgrounds for visual appeal
-- Key metrics displayed in organized grid
-- Formatted market cap values (B for billions, M for millions)
-- Sector tags for quick identification
-
-### Server Health Monitoring
-- Real-time connection status indicator
-- Automatic health checks on app launch
-- Visual feedback (green = online, red = offline)
-
-## Configuration
-
-### Backend API Endpoint
-Update the base URL in [api_service.dart](stock_screener_app/lib/services/api_service.dart):
-```dart
-static const String baseUrl = 'http://localhost:5000';
+### 1.1 Clone and install
+```bash
+git clone <your-repo-url>
+cd Stock_screener
+cd backend && npm install
+cd ../stock_screener_app && flutter pub get
 ```
 
-For production, use your deployed backend URL.
+### 1.2 Configure backend environment
+1. Copy `backend/.env.example` to `backend/.env`
+2. Fill required values:
+```env
+PORT=5000
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=stock_screener
+DB_USER=postgres
+DB_PASSWORD=your_password
 
-### Database Customization
-Add more stocks by inserting into the database:
-```sql
-INSERT INTO companies (symbol, name, sector, exchange) VALUES
-('SYMBOL', 'Company Name', 'Sector', 'Exchange');
-
-INSERT INTO fundamentals (symbol, pe_ratio, peg_ratio, debt_to_fcf, revenue_growth, market_cap, eps) VALUES
-('SYMBOL', 25.5, 2.1, 0.15, 12.5, 500000000000, 45.2);
+GROQ_API_KEY=your_key
+FINNHUB_API_KEY=your_key
 ```
 
-## API Documentation
+Important optional flags:
+- `DATABASE_URL` (cloud Postgres)
+- `DB_SSL=true` (hosted DBs)
+- `DISABLE_RATE_LIMIT=true` (only for controlled load tests)
 
-### POST `/screener`
-Screen stocks using natural language query.
-
-**Request:**
-```json
-{
-  "query": "Show IT stocks with PE below 25"
-}
+### 1.3 Initialize database
+From `backend/`:
+```bash
+npm run db:init
 ```
 
-**Response:**
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "symbol": "TCS",
-      "name": "Tata Consultancy Services",
-      "sector": "IT",
-      "pe_ratio": 28.5,
-      "peg_ratio": 2.1,
-      "debt_to_fcf": 0.05,
-      "market_cap": 1200000000000,
-      "revenue_growth": 12.5
-    }
-  ]
-}
+### 1.4 Run backend
+From `backend/`:
+```bash
+npm start
 ```
 
-### GET `/health`
-Check backend server status.
+Health checks:
+- `http://localhost:5000/health`
+- `http://localhost:5000/health/detailed`
 
-**Response:**
-```json
-{
-  "status": "OK"
-}
+### 1.5 Run Flutter app
+From `stock_screener_app/`:
+```bash
+flutter run
 ```
 
-## Testing
+API base URL resolution is in `stock_screener_app/lib/services/api_config.dart`:
+- Uses `--dart-define=API_BASE_URL=...` when provided
+- Defaults to `http://localhost:5000`
 
-Run backend tests:
+For Android device via USB:
+```bash
+adb reverse tcp:5000 tcp:5000
+```
+
+## 2. Useful Commands
+
+### Backend (`backend/`)
+```bash
+npm start
+npm run dev
+npm test
+npm run test:multiuser
+npm run verify
+npm run db:init
+```
+
+### Flutter (`stock_screener_app/`)
+```bash
+flutter pub get
+flutter run
+flutter analyze
+flutter test
+```
+
+## 3. Key API Endpoints
+
+### Health
+- `GET /health`
+- `GET /health/detailed`
+
+### Screener
+- `POST /screener`
+- `GET /cache/stats`
+- `DELETE /cache`
+
+### Portfolio
+- `GET /api/portfolio/:userId`
+- `POST /api/portfolio/add`
+- `PUT /api/portfolio/update`
+- `DELETE /api/portfolio/remove`
+
+### Watchlist
+- `GET /api/watchlist/:userId`
+- `POST /api/watchlist/add`
+- `DELETE /api/watchlist/remove`
+- `GET /api/watchlist/:userId/check/:symbol`
+
+### Alerts
+- `GET /api/alerts/:userId`
+- `POST /api/alerts`
+- `PATCH /api/alerts/:alertId/read`
+- `PATCH /api/alerts/:alertId/acknowledge`
+- `PATCH /api/alerts/:alertId/dismiss`
+- `DELETE /api/alerts/:alertId?userId=<id>`
+
+### Saved Screeners
+- `POST /api/screeners`
+- `GET /api/screeners/:userId`
+- `PATCH /api/screeners/:userId/:screenerId`
+- `DELETE /api/screeners/:userId/:screenerId`
+
+### User provisioning (app mapping)
+- `POST /api/users/register`
+
+## 4. Deployment
+
+This repo includes `render.yaml` for Render blueprint deployment.
+
+### Backend on Render
+1. Push repo to GitHub
+2. Create Render Blueprint from repo
+3. Set secrets:
+   - `GROQ_API_KEY`
+   - `FINNHUB_API_KEY`
+4. Run schema init once:
 ```bash
 cd backend
-npm test
+npm run db:init
 ```
 
-Test the API manually:
+### Build Flutter release with deployed API URL
 ```bash
-# Test health endpoint
-curl http://localhost:5000/health
-
-# Test screener endpoint
-curl -X POST http://localhost:5000/screener \
-  -H "Content-Type: application/json" \
-  -d '{"query": "Show IT stocks with PE below 25"}'
+cd stock_screener_app
+flutter build appbundle --release --dart-define=API_BASE_URL=https://<your-backend>.onrender.com --dart-define=GOOGLE_OAUTH_CLIENT_ID=<your-google-web-client-id>
 ```
 
-## Deployment
-
-### Backend Deployment
-Deploy to platforms like:
-- Heroku
-- Railway
-- Render
-- AWS EC2
-- DigitalOcean
-
-### Flutter App Deployment
-Build for production:
+APK build:
 ```bash
-# Android APK
-flutter build apk --release
-
-# iOS
-flutter build ios --release
-
-# Web
-flutter build web --release
+flutter build apk --release --dart-define=API_BASE_URL=https://<your-backend>.onrender.com --dart-define=GOOGLE_OAUTH_CLIENT_ID=<your-google-web-client-id>
 ```
 
-## Contributing
+## 5. Multi-user Reliability Testing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+100-user isolation/load test:
+```bash
+cd backend
+TEST_BASE_URL=http://localhost:5000 TEST_USER_COUNT=100 TEST_CONCURRENCY=20 npm run test:multiuser
+```
+
+Notes:
+- With default rate limiting, heavy burst tests can return `429`.
+- For controlled stress runs only, use `DISABLE_RATE_LIMIT=true`.
+
+## 6. Troubleshooting
+
+- Backend not reachable from phone:
+  - Use `adb reverse tcp:5000 tcp:5000`, or
+  - Set `--dart-define=API_BASE_URL=http://<PC_IP>:5000`
+- DB connection failures:
+  - Recheck `DB_*` or `DATABASE_URL`
+  - Ensure PostgreSQL is running and reachable
+- Finnhub/Groq issues:
+  - Verify API keys in `backend/.env`
+  - Restart backend after updating env
+
+## 7. Security and Production Notes
+- Keep `.env` out of version control
+- Keep rate limiting enabled in production
+- Use SSL for hosted Postgres (`DB_SSL=true`)
+- Protect admin endpoints before public deployment
 
 ## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgments
-
-- **Groq AI** for fast LLM inference
-- **Flutter Team** for the amazing framework
-- **PostgreSQL** for robust database management
-- **Material Design 3** for beautiful UI components
-
-## Support
-
-For questions or issues, please open an issue on GitHub or contact the maintainers.
-
----
-
-**Made with ❤️ using Flutter and Node.js**
+MIT

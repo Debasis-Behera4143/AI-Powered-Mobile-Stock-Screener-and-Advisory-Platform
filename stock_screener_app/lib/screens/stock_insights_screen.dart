@@ -383,7 +383,7 @@ class _StockInsightsScreenState extends State<StockInsightsScreen>
 
     return Card(
       elevation: 6,
-      color: color.withOpacity(0.1),
+      color: color.withValues(alpha: 0.1),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(24),

@@ -5,7 +5,13 @@ import 'auth_service.dart';
 class WatchlistService {
   static final WatchlistApiService _apiService = WatchlistApiService();
 
-  static int _resolveUserId() => AuthService.instance.currentUserId ?? 1;
+  static int _resolveUserId() {
+    final userId = AuthService.instance.currentUserId;
+    if (userId == null) {
+      throw StateError('Login required to use watchlist features.');
+    }
+    return userId;
+  }
 
   /// Get user's watchlist
   static Future<List<String>> getWatchlist() async {

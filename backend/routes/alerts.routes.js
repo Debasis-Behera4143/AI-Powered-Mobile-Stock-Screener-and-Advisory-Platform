@@ -8,6 +8,9 @@ const router = express.Router();
 const alertService = require('../services/alert.service');
 const db = require('../database');
 const { body, param, query, validationResult } = require('express-validator');
+const { authenticateRequired, requireMatchingUser } = require('../middleware/auth.middleware');
+
+router.use(authenticateRequired);
 
 /**
  * Validation middleware
@@ -77,7 +80,7 @@ function buildAlertDescription(symbol, alertType, targetPrice) {
 router.get('/:userId', [
   param('userId').isInt({ min: 1 }).withMessage('Valid user ID required'),
   query('unreadOnly').optional().isBoolean().withMessage('unreadOnly must be boolean')
-], validate, async (req, res) => {
+], validate, requireMatchingUser, async (req, res) => {
   try {
     const { userId } = req.params;
     const unreadOnly = req.query.unreadOnly === 'true';
@@ -110,7 +113,7 @@ router.get('/:userId', [
  */
 router.get('/:userId/stats', [
   param('userId').isInt({ min: 1 }).withMessage('Valid user ID required')
-], validate, async (req, res) => {
+], validate, requireMatchingUser, async (req, res) => {
   try {
     const { userId } = req.params;
 
@@ -142,7 +145,7 @@ router.post('/', [
   body('alertType').isString().trim().notEmpty().withMessage('Alert type required'),
   body('severity').optional().isIn(['low', 'medium', 'high', 'critical']),
   body('targetPrice').optional().isFloat({ min: 0.0001 }).withMessage('targetPrice must be positive')
-], validate, async (req, res) => {
+], validate, requireMatchingUser, async (req, res) => {
   try {
     const {
       userId,
@@ -218,7 +221,7 @@ router.post('/create', [
   body('previousValue').optional(),
   body('currentValue').optional(),
   body('metadata').optional().isObject().withMessage('Metadata must be an object')
-], validate, async (req, res) => {
+], validate, requireMatchingUser, async (req, res) => {
   try {
     const alertData = req.body;
 
@@ -257,7 +260,7 @@ router.post('/create', [
 router.patch('/:alertId/read', [
   param('alertId').isInt({ min: 1 }).withMessage('Valid alert ID required'),
   body('userId').isInt({ min: 1 }).withMessage('Valid user ID required')
-], validate, async (req, res) => {
+], validate, requireMatchingUser, async (req, res) => {
   try {
     const { alertId } = req.params;
     const { userId } = req.body;
@@ -288,7 +291,7 @@ router.patch('/:alertId/read', [
 router.patch('/:alertId/acknowledge', [
   param('alertId').isInt({ min: 1 }).withMessage('Valid alert ID required'),
   body('userId').isInt({ min: 1 }).withMessage('Valid user ID required')
-], validate, async (req, res) => {
+], validate, requireMatchingUser, async (req, res) => {
   try {
     const { alertId } = req.params;
     const { userId } = req.body;
@@ -317,7 +320,7 @@ router.patch('/:alertId/acknowledge', [
  */
 router.patch('/:userId/read-all', [
   param('userId').isInt({ min: 1 }).withMessage('Valid user ID required')
-], validate, async (req, res) => {
+], validate, requireMatchingUser, async (req, res) => {
   try {
     const { userId } = req.params;
     const result = await db.query(
@@ -355,7 +358,7 @@ router.patch('/:userId/read-all', [
 router.patch('/:alertId/dismiss', [
   param('alertId').isInt({ min: 1 }).withMessage('Valid alert ID required'),
   body('userId').isInt({ min: 1 }).withMessage('Valid user ID required')
-], validate, async (req, res) => {
+], validate, requireMatchingUser, async (req, res) => {
   try {
     const { alertId } = req.params;
     const { userId } = req.body;
@@ -386,7 +389,7 @@ router.patch('/:alertId/dismiss', [
 router.post('/acknowledge', [
   body('alert_id').isInt({ min: 1 }).withMessage('Valid alert ID required'),
   body('userId').isInt({ min: 1 }).withMessage('Valid user ID required')
-], validate, async (req, res) => {
+], validate, requireMatchingUser, async (req, res) => {
   try {
     const { alert_id, userId } = req.body;
 
@@ -415,7 +418,7 @@ router.post('/acknowledge', [
  */
 router.get('/:userId/pending', [
   param('userId').isInt({ min: 1 }).withMessage('Valid user ID required')
-], validate, async (req, res) => {
+], validate, requireMatchingUser, async (req, res) => {
   try {
     const { userId } = req.params;
 
@@ -447,7 +450,7 @@ router.get('/:userId/pending', [
  */
 router.get('/:userId/digest', [
   param('userId').isInt({ min: 1 }).withMessage('Valid user ID required')
-], validate, async (req, res) => {
+], validate, requireMatchingUser, async (req, res) => {
   try {
     const { userId } = req.params;
 
@@ -475,7 +478,7 @@ router.get('/:userId/digest', [
  */
 router.post('/:userId/process-pending', [
   param('userId').isInt({ min: 1 }).withMessage('Valid user ID required')
-], validate, async (req, res) => {
+], validate, requireMatchingUser, async (req, res) => {
   try {
     const { userId } = req.params;
 
@@ -505,7 +508,7 @@ router.delete('/:alertId', [
   param('alertId').isInt({ min: 1 }).withMessage('Valid alert ID required'),
   query('userId').optional().isInt({ min: 1 }).withMessage('Valid user ID required'),
   body('userId').optional().isInt({ min: 1 }).withMessage('Valid user ID required')
-], validate, async (req, res) => {
+], validate, requireMatchingUser, async (req, res) => {
   try {
     const { alertId } = req.params;
     const userIdRaw = req.query.userId ?? req.body.userId;
@@ -552,7 +555,7 @@ router.delete('/:alertId', [
  */
 router.delete('/:userId/dismissed', [
   param('userId').isInt({ min: 1 }).withMessage('Valid user ID required')
-], validate, async (req, res) => {
+], validate, requireMatchingUser, async (req, res) => {
   try {
     const { userId } = req.params;
     const result = await db.query(

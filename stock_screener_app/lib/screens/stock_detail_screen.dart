@@ -87,8 +87,8 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
             end: Alignment.bottomRight,
             colors: [
               isPositive
-                  ? AppColors.success.withOpacity(0.1)
-                  : AppColors.error.withOpacity(0.1),
+                  ? AppColors.success.withValues(alpha: 0.1)
+                  : AppColors.error.withValues(alpha: 0.1),
               Colors.white,
             ],
           ),
@@ -188,17 +188,17 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            isPositive ? AppColors.success.withOpacity(0.1) : AppColors.error.withOpacity(0.1),
+            isPositive ? AppColors.success.withValues(alpha: 0.1) : AppColors.error.withValues(alpha: 0.1),
             Colors.white,
           ],
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: isPositive ? AppColors.success.withOpacity(0.3) : AppColors.error.withOpacity(0.3),
+          color: isPositive ? AppColors.success.withValues(alpha: 0.3) : AppColors.error.withValues(alpha: 0.3),
         ),
         boxShadow: [
           BoxShadow(
-            color: (isPositive ? AppColors.success : AppColors.error).withOpacity(0.1),
+            color: (isPositive ? AppColors.success : AppColors.error).withValues(alpha: 0.1),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -229,8 +229,8 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: isPositive
-                      ? AppColors.success.withOpacity(0.2)
-                      : AppColors.error.withOpacity(0.2),
+                      ? AppColors.success.withValues(alpha: 0.2)
+                      : AppColors.error.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
@@ -277,7 +277,7 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -378,8 +378,8 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  (isPositive ? AppColors.success : AppColors.error).withOpacity(0.3),
-                  (isPositive ? AppColors.success : AppColors.error).withOpacity(0.0),
+                  (isPositive ? AppColors.success : AppColors.error).withValues(alpha: 0.3),
+                  (isPositive ? AppColors.success : AppColors.error).withValues(alpha: 0.0),
                 ],
               ),
             ),
@@ -398,7 +398,7 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -434,7 +434,7 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
+              color: AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: FaIcon(icon, size: 16, color: AppColors.primary),
@@ -468,7 +468,7 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
       decoration: BoxDecoration(
         gradient: AppColors.primaryGradient.scale(0.1),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

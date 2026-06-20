@@ -1,46 +1,50 @@
-import 'dart:convert';
+  import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+
 import 'api_config.dart';
 
 class AuthUser {
-  final int localId;
   final int backendUserId;
   final String name;
   final String email;
-  final String passwordHash;
   final String avatarLabel;
+  final String authProvider;
+  final bool emailVerified;
 
   const AuthUser({
-    required this.localId,
     required this.backendUserId,
     required this.name,
     required this.email,
-    required this.passwordHash,
     required this.avatarLabel,
+    required this.authProvider,
+    required this.emailVerified,
   });
 
   Map<String, dynamic> toJson() {
     return {
-      'localId': localId,
       'backendUserId': backendUserId,
       'name': name,
       'email': email,
-      'passwordHash': passwordHash,
       'avatarLabel': avatarLabel,
+      'authProvider': authProvider,
+      'emailVerified': emailVerified,
     };
   }
 
   factory AuthUser.fromJson(Map<String, dynamic> json) {
     return AuthUser(
-      localId: (json['localId'] as num?)?.toInt() ?? 0,
-      backendUserId: (json['backendUserId'] as num?)?.toInt() ?? 1,
+      backendUserId:
+          ((json['backendUserId'] ?? json['id']) as num?)?.toInt() ?? 0,
       name: (json['name'] ?? '').toString(),
       email: (json['email'] ?? '').toString(),
-      passwordHash: (json['passwordHash'] ?? '').toString(),
       avatarLabel: (json['avatarLabel'] ?? 'EQ').toString(),
+      authProvider: (json['authProvider'] ?? 'password').toString(),
+      emailVerified: json['emailVerified'] == true,
     );
   }
 }
@@ -48,8 +52,13 @@ class AuthUser {
 class AuthResult {
   final bool success;
   final String message;
+  final String? devOtp;
 
-  const AuthResult({required this.success, required this.message});
+  const AuthResult({
+    required this.success,
+    required this.message,
+    this.devOtp,
+  });
 }
 
 class AuthService extends ChangeNotifier {
@@ -57,17 +66,41 @@ class AuthService extends ChangeNotifier {
 
   static final AuthService instance = AuthService._();
 
-  static const _usersKey = 'equiscan_auth_users_v1';
-  static const _sessionKey = 'equiscan_auth_session_v1';
+  static const _userKey = 'equiscan_auth_user_v2';
+  static const _tokenKey = 'equiscan_auth_token_v2';
+  // PASTE YOUR GOOGLE OAUTH CLIENT ID HERE FOR A HARDCODED FALLBACK:
+  static const _hardcodedGoogleClientId = '422876120349-gme1b8ce1vhrkagiaakpu8nj8qkqoufp.apps.googleusercontent.com';
 
-  final List<AuthUser> _users = [];
+  static const _googleClientIdFromBuild = String.fromEnvironment(
+    'GOOGLE_OAUTH_CLIENT_ID',
+    defaultValue: '',
+  );
+  static final _googleClientId = _googleClientIdFromBuild.trim().isEmpty
+      ? _hardcodedGoogleClientId
+      : _googleClientIdFromBuild.trim();
+  static const FlutterSecureStorage _secureStorage = FlutterSecureStorage();
+
+  GoogleSignIn _buildGoogleSignIn() {
+    return kIsWeb
+        ? GoogleSignIn(
+            clientId: _googleClientId,
+            scopes: const ['email'],
+          )
+        : GoogleSignIn(
+            serverClientId: _googleClientId,
+            scopes: const ['email'],
+          );
+  }
+
   AuthUser? _currentUser;
+  String? _sessionToken;
   bool _isInitialized = false;
 
   bool get isInitialized => _isInitialized;
-  bool get isAuthenticated => _currentUser != null;
+  bool get isAuthenticated => _currentUser != null && _sessionToken != null;
   AuthUser? get currentUser => _currentUser;
   int? get currentUserId => _currentUser?.backendUserId;
+  String? get sessionToken => _sessionToken;
 
   static const List<String> avatarOptions = [
     'EQ',
@@ -82,41 +115,71 @@ class AuthService extends ChangeNotifier {
     if (_isInitialized) return;
 
     final prefs = await SharedPreferences.getInstance();
-    final usersRaw = prefs.getString(_usersKey);
-
-    if (usersRaw == null || usersRaw.trim().isEmpty) {
-      _seedDefaultUser();
-      await _persistUsers(prefs);
-    } else {
-      final parsed = jsonDecode(usersRaw);
-      if (parsed is List) {
-        _users
-          ..clear()
-          ..addAll(
-            parsed
-                .whereType<Map<String, dynamic>>()
-                .map(AuthUser.fromJson)
-                .where(
-                  (u) =>
-                      u.email.trim().isNotEmpty &&
-                      u.passwordHash.trim().isNotEmpty,
-                ),
-          );
-      }
-
-      if (_users.isEmpty) {
-        _seedDefaultUser();
-        await _persistUsers(prefs);
+    _sessionToken = await _secureStorage.read(key: _tokenKey);
+    final rawUser = prefs.getString(_userKey);
+    if (rawUser != null && rawUser.trim().isNotEmpty) {
+      final parsed = jsonDecode(rawUser);
+      if (parsed is Map<String, dynamic>) {
+        _currentUser = AuthUser.fromJson(parsed);
       }
     }
 
-    final sessionEmail = prefs.getString(_sessionKey)?.toLowerCase().trim();
-    if (sessionEmail != null && sessionEmail.isNotEmpty) {
-      _currentUser = _users.where((u) => u.email == sessionEmail).firstOrNull;
+    if (_sessionToken == null || _currentUser == null) {
+      await _secureStorage.delete(key: _tokenKey);
+      await prefs.remove(_tokenKey);
+      await prefs.remove(_userKey);
+      _sessionToken = null;
+      _currentUser = null;
     }
 
     _isInitialized = true;
     notifyListeners();
+  }
+
+  Map<String, String> authorizedHeaders({
+    bool jsonContent = true,
+  }) {
+    return {
+      if (jsonContent) 'Content-Type': 'application/json',
+      if (_sessionToken != null) 'Authorization': 'Bearer $_sessionToken',
+    };
+  }
+
+  Future<AuthResult> requestRegistrationOtp({required String email}) async {
+    await initialize();
+    final normalizedEmail = email.trim().toLowerCase();
+    if (!_isValidEmail(normalizedEmail)) {
+      return const AuthResult(
+        success: false,
+        message: 'Enter a valid email address.',
+      );
+    }
+
+    try {
+      final response = await http.post(
+        Uri.parse('${ApiConfig.baseUrl}/api/users/request-otp'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': normalizedEmail, 'purpose': 'register'}),
+      );
+      final body = _decodeMap(response.body);
+      if (response.statusCode != 200 || body['success'] != true) {
+        return AuthResult(
+          success: false,
+          message: _extractError(body, 'Unable to send verification code.'),
+        );
+      }
+
+      return AuthResult(
+        success: true,
+        message: 'Verification code sent.',
+        devOtp: body['devOtp']?.toString(),
+      );
+    } catch (_) {
+      return const AuthResult(
+        success: false,
+        message: 'Unable to reach authentication server.',
+      );
+    }
   }
 
   Future<AuthResult> login({
@@ -133,36 +196,34 @@ class AuthService extends ChangeNotifier {
       );
     }
 
-    if (password.trim().length < 6) {
+    if (password.isEmpty) {
       return const AuthResult(
         success: false,
-        message: 'Password must be at least 6 characters.',
+        message: 'Enter your password.',
       );
     }
 
-    final hashed = _hashPassword(password);
-    final user = _users
-        .where((u) => u.email == normalizedEmail && u.passwordHash == hashed)
-        .firstOrNull;
+    try {
+      final response = await http.post(
+        Uri.parse('${ApiConfig.baseUrl}/api/users/login'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': normalizedEmail, 'password': password}),
+      );
 
-    if (user == null) {
+      return _consumeAuthResponse(response);
+    } catch (_) {
       return const AuthResult(
         success: false,
-        message: 'Invalid email or password.',
+        message: 'Unable to reach authentication server.',
       );
     }
-
-    _currentUser = user;
-    await _persistSession();
-    notifyListeners();
-
-    return const AuthResult(success: true, message: 'Login successful.');
   }
 
   Future<AuthResult> register({
     required String name,
     required String email,
     required String password,
+    required String otp,
     required String avatarLabel,
   }) async {
     await initialize();
@@ -184,100 +245,163 @@ class AuthService extends ChangeNotifier {
       );
     }
 
-    if (password.trim().length < 6) {
-      return const AuthResult(
-        success: false,
-        message: 'Password must be at least 6 characters.',
-      );
-    }
-
-    final exists = _users.any((u) => u.email == normalizedEmail);
-    if (exists) {
-      return const AuthResult(
-        success: false,
-        message: 'An account with this email already exists.',
-      );
-    }
-
-    final backendUserId = await _ensureBackendUser(
-      name: cleanName,
-      email: normalizedEmail,
-    );
-    if (backendUserId == null) {
+    if (!_isStrongPassword(password)) {
       return const AuthResult(
         success: false,
         message:
-            'Unable to create backend user profile. Check backend server and try again.',
+            'Use 8+ characters with uppercase, lowercase, number, and symbol.',
       );
     }
 
-    final nextLocalId =
-        (_users.map((u) => u.localId).fold<int>(0, (a, b) => a > b ? a : b)) +
-        1;
-    final selectedAvatar = avatarOptions.contains(avatarLabel)
-        ? avatarLabel
-        : avatarOptions.first;
+    if (!RegExp(r'^\d{6}$').hasMatch(otp.trim())) {
+      return const AuthResult(
+        success: false,
+        message: 'Enter the 6 digit verification code.',
+      );
+    }
 
-    final user = AuthUser(
-      localId: nextLocalId,
-      backendUserId: backendUserId,
-      name: cleanName,
-      email: normalizedEmail,
-      passwordHash: _hashPassword(password),
-      avatarLabel: selectedAvatar,
-    );
+    try {
+      final response = await http.post(
+        Uri.parse('${ApiConfig.baseUrl}/api/users/register'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'name': cleanName,
+          'email': normalizedEmail,
+          'password': password,
+          'otp': otp.trim(),
+        }),
+      );
 
-    _users.add(user);
-    _currentUser = user;
+      return _consumeAuthResponse(response, avatarLabel: avatarLabel);
+    } catch (_) {
+      return const AuthResult(
+        success: false,
+        message: 'Unable to reach authentication server.',
+      );
+    }
+  }
 
-    final prefs = await SharedPreferences.getInstance();
-    await _persistUsers(prefs);
-    await _persistSession();
+  Future<AuthResult> loginWithGoogle() async {
+    await initialize();
+    if (_googleClientId.trim().isEmpty) {
+      return const AuthResult(
+        success: false,
+        message: 'Google OAuth client ID is not configured for this build.',
+      );
+    }
 
-    notifyListeners();
-    return const AuthResult(success: true, message: 'Registration successful.');
+    try {
+      final account = await _buildGoogleSignIn().signIn();
+      if (account == null) {
+        return const AuthResult(success: false, message: 'Google sign-in cancelled.');
+      }
+
+      final auth = await account.authentication;
+      final idToken = auth.idToken;
+      if (idToken == null || idToken.isEmpty) {
+        return const AuthResult(
+          success: false,
+          message: 'Google did not return an ID token.',
+        );
+      }
+
+      final response = await http.post(
+        Uri.parse('${ApiConfig.baseUrl}/api/users/google'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'idToken': idToken}),
+      );
+
+      return _consumeAuthResponse(response);
+    } catch (_) {
+      return const AuthResult(
+        success: false,
+        message: 'Google sign-in is not configured for this platform yet.',
+      );
+    }
   }
 
   Future<void> logout() async {
     await initialize();
     _currentUser = null;
+    _sessionToken = null;
+    try {
+      await _buildGoogleSignIn().signOut();
+    } catch (_) {
+      // Platform Google configuration is optional; local logout should still work.
+    }
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_sessionKey);
+    await _secureStorage.delete(key: _tokenKey);
+    await prefs.remove(_tokenKey);
+    await prefs.remove(_userKey);
     notifyListeners();
   }
 
-  Future<void> _persistUsers(SharedPreferences prefs) async {
-    final payload = jsonEncode(_users.map((u) => u.toJson()).toList());
-    await prefs.setString(_usersKey, payload);
-  }
-
-  Future<void> _persistSession() async {
-    final prefs = await SharedPreferences.getInstance();
-    if (_currentUser == null) {
-      await prefs.remove(_sessionKey);
-      return;
-    }
-    await prefs.setString(_sessionKey, _currentUser!.email);
-  }
-
-  void _seedDefaultUser() {
-    _users
-      ..clear()
-      ..add(
-        AuthUser(
-          localId: 1,
-          backendUserId: 1,
-          name: 'Demo Investor',
-          email: 'demo@equiscan.app',
-          passwordHash: _hashPassword('Demo@123'),
-          avatarLabel: 'EQ',
-        ),
+  Future<AuthResult> _consumeAuthResponse(
+    http.Response response, {
+    String? avatarLabel,
+  }) async {
+    final body = _decodeMap(response.body);
+    if (response.statusCode < 200 ||
+        response.statusCode >= 300 ||
+        body['success'] != true) {
+      return AuthResult(
+        success: false,
+        message: _extractError(body, 'Authentication failed.'),
       );
+    }
+
+    final data = body['data'];
+    if (data is! Map<String, dynamic>) {
+      return const AuthResult(
+        success: false,
+        message: 'Authentication response was incomplete.',
+      );
+    }
+
+    final token = data['token']?.toString();
+    final userPayload = data['user'];
+    if (token == null || token.isEmpty || userPayload is! Map<String, dynamic>) {
+      return const AuthResult(
+        success: false,
+        message: 'Authentication response was incomplete.',
+      );
+    }
+
+    final selectedAvatar = avatarOptions.contains(avatarLabel)
+        ? avatarLabel!
+        : avatarOptions.first;
+    final user = AuthUser.fromJson({
+      ...userPayload,
+      'avatarLabel': selectedAvatar,
+    });
+
+    _sessionToken = token;
+    _currentUser = user;
+    final prefs = await SharedPreferences.getInstance();
+    await _secureStorage.write(key: _tokenKey, value: token);
+    await prefs.setString(_userKey, jsonEncode(user.toJson()));
+    notifyListeners();
+
+    return const AuthResult(success: true, message: 'Login successful.');
   }
 
-  String _hashPassword(String value) {
-    final bytes = utf8.encode(value.trim());
-    return base64Encode(bytes);
+  Map<String, dynamic> _decodeMap(String source) {
+    try {
+      final decoded = jsonDecode(source);
+      return decoded is Map<String, dynamic> ? decoded : <String, dynamic>{};
+    } catch (_) {
+      return <String, dynamic>{};
+    }
+  }
+
+  String _extractError(Map<String, dynamic> body, String fallback) {
+    if (body['error'] is String) return body['error'].toString();
+    if (body['message'] is String) return body['message'].toString();
+    if (body['errors'] is List && (body['errors'] as List).isNotEmpty) {
+      final first = (body['errors'] as List).first;
+      if (first is Map && first['msg'] != null) return first['msg'].toString();
+    }
+    return fallback;
   }
 
   bool _isValidEmail(String value) {
@@ -285,39 +409,11 @@ class AuthService extends ChangeNotifier {
     return expression.hasMatch(value);
   }
 
-  Future<int?> _ensureBackendUser({
-    required String name,
-    required String email,
-  }) async {
-    try {
-      final response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}/api/users/register'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'name': name, 'email': email}),
-      );
-
-      if (response.statusCode != 200 && response.statusCode != 201) {
-        return null;
-      }
-
-      final body = jsonDecode(response.body);
-      if (body is! Map<String, dynamic>) return null;
-
-      final data = body['data'];
-      if (data is! Map<String, dynamic>) return null;
-
-      final userIdValue = data['id'];
-      if (userIdValue is num) {
-        return userIdValue.toInt();
-      }
-
-      return int.tryParse('$userIdValue');
-    } catch (_) {
-      return null;
-    }
+  bool _isStrongPassword(String value) {
+    return value.length >= 8 &&
+        RegExp(r'[a-z]').hasMatch(value) &&
+        RegExp(r'[A-Z]').hasMatch(value) &&
+        RegExp(r'\d').hasMatch(value) &&
+        RegExp(r'[^A-Za-z0-9]').hasMatch(value);
   }
-}
-
-extension _FirstOrNullExtension<E> on Iterable<E> {
-  E? get firstOrNull => isEmpty ? null : first;
 }

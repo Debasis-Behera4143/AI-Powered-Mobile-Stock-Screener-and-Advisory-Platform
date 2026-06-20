@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart'
-    show TargetPlatform, defaultTargetPlatform, kIsWeb;
+  show TargetPlatform, defaultTargetPlatform, kIsWeb, kReleaseMode;
 
 /// Central API endpoint resolver for all app services.
 ///
@@ -11,6 +11,12 @@ class ApiConfig {
     const env = String.fromEnvironment('API_BASE_URL', defaultValue: '');
     if (env.trim().isNotEmpty) {
       return _normalize(env.trim());
+    }
+
+    if (kReleaseMode) {
+      throw StateError(
+        'API_BASE_URL must be set to an https:// backend URL in release builds.',
+      );
     }
 
     if (kIsWeb) {
@@ -30,6 +36,12 @@ class ApiConfig {
       'If using a physical Android phone: run `adb reverse tcp:5000 tcp:5000` (USB) or use --dart-define=API_BASE_URL=http://<YOUR_PC_IP>:5000';
 
   static String _normalize(String url) {
-    return url.endsWith('/') ? url.substring(0, url.length - 1) : url;
+    final normalized = url.endsWith('/') ? url.substring(0, url.length - 1) : url;
+    if (kReleaseMode && !normalized.startsWith('https://')) {
+      throw StateError(
+        'Release builds require an https:// API_BASE_URL. Received: $normalized',
+      );
+    }
+    return normalized;
   }
 }

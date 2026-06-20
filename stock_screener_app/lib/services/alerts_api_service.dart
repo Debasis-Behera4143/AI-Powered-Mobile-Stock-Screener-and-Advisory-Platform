@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import 'api_config.dart';
+import 'auth_service.dart';
 
 class AlertsApiService {
   String get baseUrl => '${ApiConfig.baseUrl}/api/alerts';
@@ -16,7 +17,10 @@ class AlertsApiService {
       final url = Uri.parse(
         '$baseUrl/$userId${unreadOnly ? '?unreadOnly=true' : ''}',
       );
-      final response = await http.get(url);
+      final response = await http.get(
+        url,
+        headers: AuthService.instance.authorizedHeaders(jsonContent: false),
+      );
 
       if (response.statusCode != 200) {
         throw Exception('Failed to fetch alerts: ${response.statusCode}');
@@ -49,7 +53,10 @@ class AlertsApiService {
   /// Get alert statistics.
   Future<Map<String, dynamic>> getAlertStats(int userId) async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/$userId/stats'));
+      final response = await http.get(
+        Uri.parse('$baseUrl/$userId/stats'),
+        headers: AuthService.instance.authorizedHeaders(jsonContent: false),
+      );
 
       if (response.statusCode != 200) {
         throw Exception('Failed to fetch alert stats: ${response.statusCode}');
@@ -73,7 +80,7 @@ class AlertsApiService {
     try {
       final response = await http.patch(
         Uri.parse('$baseUrl/$alertId/read'),
-        headers: {'Content-Type': 'application/json'},
+        headers: AuthService.instance.authorizedHeaders(),
         body: json.encode({'userId': userId}),
       );
 
@@ -89,7 +96,7 @@ class AlertsApiService {
     try {
       final response = await http.patch(
         Uri.parse('$baseUrl/$alertId/acknowledge'),
-        headers: {'Content-Type': 'application/json'},
+        headers: AuthService.instance.authorizedHeaders(),
         body: json.encode({'userId': userId}),
       );
 
@@ -105,7 +112,7 @@ class AlertsApiService {
     try {
       final response = await http.patch(
         Uri.parse('$baseUrl/$userId/read-all'),
-        headers: {'Content-Type': 'application/json'},
+        headers: AuthService.instance.authorizedHeaders(),
       );
 
       return response.statusCode == 200 || response.statusCode == 204;
@@ -121,7 +128,10 @@ class AlertsApiService {
       final uri = userId != null
           ? Uri.parse('$baseUrl/$alertId?userId=$userId')
           : Uri.parse('$baseUrl/$alertId');
-      final response = await http.delete(uri);
+      final response = await http.delete(
+        uri,
+        headers: AuthService.instance.authorizedHeaders(jsonContent: false),
+      );
 
       if (response.statusCode == 200 || response.statusCode == 204) {
         return true;
@@ -144,6 +154,7 @@ class AlertsApiService {
     try {
       final response = await http.delete(
         Uri.parse('$baseUrl/$userId/dismissed'),
+        headers: AuthService.instance.authorizedHeaders(jsonContent: false),
       );
 
       return response.statusCode == 200 || response.statusCode == 204;
@@ -157,7 +168,7 @@ class AlertsApiService {
     try {
       final response = await http.patch(
         Uri.parse('$baseUrl/$alertId/dismiss'),
-        headers: {'Content-Type': 'application/json'},
+        headers: AuthService.instance.authorizedHeaders(),
         body: json.encode({'userId': userId}),
       );
 

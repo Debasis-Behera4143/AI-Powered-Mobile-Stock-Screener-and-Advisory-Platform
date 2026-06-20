@@ -8,13 +8,16 @@ import 'auth_service.dart';
 class AlertService {
   final AlertsApiService _apiService = AlertsApiService();
 
+  int? _resolveUserId(int? userId) => userId ?? AuthService.instance.currentUserId;
+
   /// Get all alerts for user
   Future<List<Map<String, dynamic>>> getAlerts({
     int? userId,
     bool unreadOnly = false,
   }) async {
     try {
-      final id = userId ?? AuthService.instance.currentUserId ?? 1;
+      final id = _resolveUserId(userId);
+      if (id == null) return [];
       return await _apiService.getUserAlerts(id, unreadOnly: unreadOnly);
     } catch (e) {
       print('Error getting alerts: $e');
@@ -33,7 +36,7 @@ class AlertService {
     try {
       final response = await http.post(
         Uri.parse('${ApiConfig.baseUrl}/api/alerts'),
-        headers: {'Content-Type': 'application/json'},
+        headers: AuthService.instance.authorizedHeaders(),
         body: json.encode({
           'userId': userId,
           'symbol': symbol.toUpperCase(),
@@ -57,7 +60,8 @@ class AlertService {
   /// Delete an alert
   Future<bool> deleteAlert(int alertId, {int? userId}) async {
     try {
-      final id = userId ?? AuthService.instance.currentUserId ?? 1;
+      final id = _resolveUserId(userId);
+      if (id == null) return false;
       return await _apiService.deleteAlert(alertId, userId: id);
     } catch (e) {
       print('Error deleting alert: $e');
@@ -68,7 +72,8 @@ class AlertService {
   /// Mark alert as read
   Future<bool> markAsRead(int alertId, {int? userId}) async {
     try {
-      final id = userId ?? AuthService.instance.currentUserId ?? 1;
+      final id = _resolveUserId(userId);
+      if (id == null) return false;
       return await _apiService.markAsRead(alertId, id);
     } catch (e) {
       print('Error marking alert as read: $e');
@@ -79,7 +84,8 @@ class AlertService {
   /// Mark alert as acknowledged
   Future<bool> markAsAcknowledged(int alertId, {int? userId}) async {
     try {
-      final id = userId ?? AuthService.instance.currentUserId ?? 1;
+      final id = _resolveUserId(userId);
+      if (id == null) return false;
       return await _apiService.markAsAcknowledged(alertId, id);
     } catch (e) {
       print('Error acknowledging alert: $e');

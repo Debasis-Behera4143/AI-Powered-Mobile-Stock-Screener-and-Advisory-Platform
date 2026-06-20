@@ -95,12 +95,14 @@ class _WatchlistScreenPremiumState extends State<WatchlistScreenPremium> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFFFFBE8),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: _loadWatchlist,
-          color: PremiumColors.neonTeal,
+          color: isDark ? const Color(0xFF00F5FF) : PremiumColors.neonTeal,
           child: ListView(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
             children: [
@@ -122,8 +124,8 @@ class _WatchlistScreenPremiumState extends State<WatchlistScreenPremium> {
   }
 
   Widget _buildHeader() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return PremiumCard(
-      backgroundColor: Colors.white,
       padding: const EdgeInsets.all(16),
       borderRadius: BorderRadius.circular(18),
       child: Row(
@@ -132,7 +134,7 @@ class _WatchlistScreenPremiumState extends State<WatchlistScreenPremium> {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              gradient: PremiumColors.primaryGradient,
+              gradient: isDark ? PremiumColors.purpleGradient : PremiumColors.primaryGradient,
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(
@@ -146,13 +148,20 @@ class _WatchlistScreenPremiumState extends State<WatchlistScreenPremium> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Watchlist', style: PremiumTypography.h3),
+                Text(
+                  'Watchlist',
+                  style: PremiumTypography.h3.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: isDark ? Colors.white : PremiumColors.textPrimary,
+                  ),
+                ),
                 const SizedBox(height: 2),
                 Text(
                   '${_watchlist.length} stocks'
                   '${_lastUpdatedAt == null ? '' : ' • updated ${_formatElapsed(_lastUpdatedAt!)}'}',
                   style: PremiumTypography.caption.copyWith(
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w700,
+                    color: isDark ? const Color(0xFF94A3B8) : PremiumColors.textMuted,
                   ),
                 ),
               ],
@@ -160,7 +169,10 @@ class _WatchlistScreenPremiumState extends State<WatchlistScreenPremium> {
           ),
           IconButton(
             onPressed: _isLoading ? null : _loadWatchlist,
-            icon: const Icon(Icons.refresh_rounded),
+            icon: Icon(
+              Icons.refresh_rounded,
+              color: isDark ? Colors.white : PremiumColors.textPrimary,
+            ),
             tooltip: 'Refresh',
           ),
         ],
@@ -169,6 +181,7 @@ class _WatchlistScreenPremiumState extends State<WatchlistScreenPremium> {
   }
 
   Widget _buildStockCard(Map<String, dynamic> stock) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final symbol = (stock['symbol']?.toString() ?? '').toUpperCase();
     final name = stock['name']?.toString() ?? 'Not Available';
     final sector = stock['sector']?.toString() ?? '';
@@ -190,10 +203,14 @@ class _WatchlistScreenPremiumState extends State<WatchlistScreenPremium> {
     final growth = _toNullableDouble(stock['revenueGrowth']);
     final marketCap = _toNullableDouble(stock['marketCap']);
 
+    final symbolBg = isDark ? const Color(0xFF1E143A) : const Color(0xFFEFF6FF);
+    final symbolColor = isDark ? const Color(0xFF00F5FF) : const Color(0xFF1D4ED8);
+    final sectorBg = isDark ? const Color(0x1F00F5FF) : const Color(0xFFFFF1F4);
+    final sectorText = isDark ? const Color(0xFF00F5FF) : const Color(0xFFFF5E84);
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: PremiumCard(
-        backgroundColor: const Color(0xFFEFF6FF),
         borderRadius: BorderRadius.circular(16),
         padding: const EdgeInsets.all(14),
         onTap: () {
@@ -216,14 +233,18 @@ class _WatchlistScreenPremiumState extends State<WatchlistScreenPremium> {
                     vertical: 5,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF2563EB),
+                    color: symbolBg,
                     borderRadius: BorderRadius.circular(999),
+                    border: Border.all(
+                      color: symbolColor.withOpacity(0.3),
+                      width: 1,
+                    ),
                   ),
                   child: Text(
                     symbol,
                     style: PremiumTypography.caption.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
+                      color: symbolColor,
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
                 ),
@@ -236,16 +257,20 @@ class _WatchlistScreenPremiumState extends State<WatchlistScreenPremium> {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFDCEBFF),
+                        color: sectorBg,
                         borderRadius: BorderRadius.circular(999),
+                        border: Border.all(
+                          color: sectorText.withOpacity(0.2),
+                          width: 1,
+                        ),
                       ),
                       child: Text(
                         sector,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: PremiumTypography.caption.copyWith(
-                          color: const Color(0xFF1D4ED8),
-                          fontWeight: FontWeight.w600,
+                          color: sectorText,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),
@@ -271,7 +296,8 @@ class _WatchlistScreenPremiumState extends State<WatchlistScreenPremium> {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: PremiumTypography.body1.copyWith(
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w800,
+                color: isDark ? Colors.white : PremiumColors.textPrimary,
               ),
             ),
             const SizedBox(height: 8),
@@ -281,7 +307,11 @@ class _WatchlistScreenPremiumState extends State<WatchlistScreenPremium> {
                   currentPrice > 0
                       ? '₹${currentPrice.toStringAsFixed(2)}'
                       : '--',
-                  style: PremiumTypography.priceMedium.copyWith(fontSize: 18),
+                  style: PremiumTypography.priceMedium.copyWith(
+                    fontSize: 18,
+                    color: isDark ? Colors.white : PremiumColors.textPrimary,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
                 const SizedBox(width: 10),
                 Container(
@@ -297,7 +327,7 @@ class _WatchlistScreenPremiumState extends State<WatchlistScreenPremium> {
                     '${isPositive ? '+' : ''}${changePercent.toStringAsFixed(2)}%',
                     style: PremiumTypography.caption.copyWith(
                       color: changeColor,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
                 ),
@@ -306,7 +336,8 @@ class _WatchlistScreenPremiumState extends State<WatchlistScreenPremium> {
                   Text(
                     'MCap ${_compactNumber.format(marketCap)}',
                     style: PremiumTypography.caption.copyWith(
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w700,
+                      color: isDark ? const Color(0xFF94A3B8) : PremiumColors.textMuted,
                     ),
                   ),
               ],
@@ -331,18 +362,21 @@ class _WatchlistScreenPremiumState extends State<WatchlistScreenPremium> {
   }
 
   Widget _metricChip(String label, String value) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? const Color(0xFF1E143A) : const Color(0xFFFFF1F4),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: const Color(0xFFBFDBFE)),
+        border: Border.all(
+          color: isDark ? const Color(0xFF334155) : const Color(0xFFBFDBFE),
+        ),
       ),
       child: Text(
         '$label $value',
         style: PremiumTypography.caption.copyWith(
-          color: PremiumColors.textSecondary,
-          fontWeight: FontWeight.w600,
+          color: isDark ? const Color(0xFFE2E8F0) : PremiumColors.textSecondary,
+          fontWeight: FontWeight.w700,
         ),
       ),
     );
@@ -350,7 +384,7 @@ class _WatchlistScreenPremiumState extends State<WatchlistScreenPremium> {
 
   Widget _buildLoadingState() {
     return const Padding(
-      padding: EdgeInsets.only(top: 30),
+      padding: EdgeInsets.only(top: 40),
       child: Center(
         child: CircularProgressIndicator(color: PremiumColors.neonTeal),
       ),
@@ -358,8 +392,8 @@ class _WatchlistScreenPremiumState extends State<WatchlistScreenPremium> {
   }
 
   Widget _buildErrorState() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return PremiumCard(
-      backgroundColor: Colors.white,
       padding: const EdgeInsets.all(16),
       borderRadius: BorderRadius.circular(16),
       child: Column(
@@ -368,12 +402,18 @@ class _WatchlistScreenPremiumState extends State<WatchlistScreenPremium> {
           Text(
             'Unable to load watchlist',
             style: PremiumTypography.body1.copyWith(
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w800,
+              color: isDark ? Colors.white : PremiumColors.textPrimary,
             ),
           ),
           const SizedBox(height: 6),
-          Text(_error ?? '', style: PremiumTypography.caption),
-          const SizedBox(height: 10),
+          Text(
+            _error ?? '',
+            style: PremiumTypography.caption.copyWith(
+              color: isDark ? const Color(0xFF94A3B8) : PremiumColors.textMuted,
+            ),
+          ),
+          const SizedBox(height: 12),
           ElevatedButton.icon(
             onPressed: _loadWatchlist,
             icon: const Icon(Icons.refresh_rounded),
@@ -385,29 +425,33 @@ class _WatchlistScreenPremiumState extends State<WatchlistScreenPremium> {
   }
 
   Widget _buildEmptyState() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return PremiumCard(
-      backgroundColor: Colors.white,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       borderRadius: BorderRadius.circular(16),
       child: Column(
         children: [
-          const Icon(
+          Icon(
             Icons.bookmark_border_rounded,
-            color: PremiumColors.textMuted,
+            color: isDark ? const Color(0xFF8C7FA6) : PremiumColors.textMuted,
             size: 48,
           ),
           const SizedBox(height: 10),
           Text(
             'Your watchlist is empty',
             style: PremiumTypography.body1.copyWith(
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w800,
+              color: isDark ? Colors.white : PremiumColors.textPrimary,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           Text(
             'Run the screener and save stocks to track them here.',
             textAlign: TextAlign.center,
-            style: PremiumTypography.caption,
+            style: PremiumTypography.caption.copyWith(
+              color: isDark ? const Color(0xFF94A3B8) : PremiumColors.textMuted,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ),

@@ -67,8 +67,9 @@ class _AlertsScreenState extends State<AlertsScreen>
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: PremiumColors.deepDark,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -80,7 +81,7 @@ class _AlertsScreenState extends State<AlertsScreen>
                   Container(
                     padding: const EdgeInsets.all(PremiumUI.spacingM),
                     decoration: BoxDecoration(
-                      gradient: PremiumColors.primaryGradient,
+                      gradient: isDark ? PremiumColors.purpleGradient : PremiumColors.primaryGradient,
                       borderRadius: BorderRadius.circular(PremiumUI.radiusL),
                     ),
                     child: const Icon(
@@ -94,24 +95,36 @@ class _AlertsScreenState extends State<AlertsScreen>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Alerts', style: PremiumTypography.h1),
+                        Text(
+                          'Alerts',
+                          style: PremiumTypography.h1.copyWith(
+                            color: isDark ? Colors.white : PremiumColors.textPrimary,
+                          ),
+                        ),
                         const SizedBox(height: 4),
                         Text(
                           '${_unreadAlerts.length} unread',
                           style: PremiumTypography.caption.copyWith(
-                            color: PremiumColors.neonTeal,
+                            color: isDark ? const Color(0xFF00F5FF) : PremiumColors.neonTeal,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ],
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.done_all_rounded),
+                    icon: Icon(
+                      Icons.done_all_rounded,
+                      color: isDark ? Colors.white : PremiumColors.textPrimary,
+                    ),
                     onPressed: _markAllAsRead,
                     tooltip: 'Mark all read',
                   ),
                   IconButton(
-                    icon: const Icon(Icons.add_rounded),
+                    icon: Icon(
+                      Icons.add_rounded,
+                      color: isDark ? Colors.white : PremiumColors.textPrimary,
+                    ),
                     onPressed: _showCreateAlertDialog,
                   ),
                 ],
@@ -124,19 +137,19 @@ class _AlertsScreenState extends State<AlertsScreen>
                 horizontal: PremiumUI.spacingL,
               ),
               decoration: BoxDecoration(
-                color: PremiumColors.surfaceBg,
+                color: isDark ? const Color(0xFF1E143A) : PremiumColors.surfaceBg,
                 borderRadius: BorderRadius.circular(PremiumUI.radiusL),
               ),
               child: TabBar(
                 controller: _tabController,
                 indicator: BoxDecoration(
-                  color: PremiumColors.neonTeal,
+                  color: isDark ? const Color(0xFFA855F7) : PremiumColors.neonTeal,
                   borderRadius: BorderRadius.circular(PremiumUI.radiusL),
                 ),
                 labelColor: PremiumColors.textOnAccent,
-                unselectedLabelColor: PremiumColors.textMuted,
+                unselectedLabelColor: isDark ? const Color(0xFF8C7FA6) : PremiumColors.textMuted,
                 labelStyle: PremiumTypography.body2.copyWith(
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w700,
                 ),
                 dividerColor: Colors.transparent,
                 tabs: [
@@ -179,8 +192,8 @@ class _AlertsScreenState extends State<AlertsScreen>
 
     return RefreshIndicator(
       onRefresh: _loadAlerts,
-      color: PremiumColors.neonTeal,
-      backgroundColor: PremiumColors.cardBg,
+      color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF00F5FF) : PremiumColors.neonTeal,
+      backgroundColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF130E26) : PremiumColors.cardBg,
       child: ListView.separated(
         padding: const EdgeInsets.symmetric(horizontal: PremiumUI.spacingL),
         itemCount: alerts.length,
@@ -192,6 +205,7 @@ class _AlertsScreenState extends State<AlertsScreen>
   }
 
   Widget _buildAlertCard(dynamic alert) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final severity = alert['severity']?.toString() ?? 'INFO';
     final isRead = alert['isRead'] ?? false;
     final createdAt =
@@ -218,14 +232,14 @@ class _AlertsScreenState extends State<AlertsScreen>
     return PremiumCard(
       onTap: () => _markAsRead(alert),
       padding: const EdgeInsets.all(PremiumUI.spacingL),
-      backgroundColor: isRead ? PremiumColors.cardBg : PremiumColors.surfaceBg,
+      useGlass: true,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             padding: const EdgeInsets.all(PremiumUI.spacingS),
             decoration: BoxDecoration(
-              color: severityColor.withOpacity(0.1),
+              color: severityColor.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(PremiumUI.radiusM),
             ),
             child: Icon(
@@ -244,8 +258,9 @@ class _AlertsScreenState extends State<AlertsScreen>
                     Text(
                       alert['symbol']?.toString() ?? 'NA',
                       style: PremiumTypography.body1.copyWith(
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w700,
                         fontFamily: PremiumTypography.numericFont,
+                        color: isDark ? Colors.white : PremiumColors.textPrimary,
                       ),
                     ),
                     const SizedBox(width: PremiumUI.spacingS),
@@ -255,7 +270,7 @@ class _AlertsScreenState extends State<AlertsScreen>
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: severityColor.withOpacity(0.2),
+                        color: severityColor.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(PremiumUI.radiusS),
                       ),
                       child: Text(
@@ -272,8 +287,8 @@ class _AlertsScreenState extends State<AlertsScreen>
                       Container(
                         width: 8,
                         height: 8,
-                        decoration: const BoxDecoration(
-                          color: PremiumColors.neonTeal,
+                        decoration: BoxDecoration(
+                          color: isDark ? const Color(0xFF00F5FF) : PremiumColors.neonTeal,
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -282,10 +297,17 @@ class _AlertsScreenState extends State<AlertsScreen>
                 const SizedBox(height: PremiumUI.spacingS),
                 Text(
                   alert['message']?.toString() ?? 'Not Available',
-                  style: PremiumTypography.body2,
+                  style: PremiumTypography.body2.copyWith(
+                    color: isDark ? const Color(0xFFE2E8F0) : PremiumColors.textSecondary,
+                  ),
                 ),
                 const SizedBox(height: PremiumUI.spacingS),
-                Text(_formatTime(createdAt), style: PremiumTypography.caption),
+                Text(
+                  _formatTime(createdAt),
+                  style: PremiumTypography.caption.copyWith(
+                    color: isDark ? const Color(0xFF8C7FA6) : PremiumColors.textMuted,
+                  ),
+                ),
               ],
             ),
           ),
@@ -411,7 +433,7 @@ class _AlertsScreenState extends State<AlertsScreen>
               ),
               const SizedBox(height: PremiumUI.spacingM),
               DropdownButtonFormField<String>(
-                value: alertType,
+                initialValue: alertType,
                 decoration: const InputDecoration(labelText: 'Condition'),
                 items: const [
                   DropdownMenuItem(

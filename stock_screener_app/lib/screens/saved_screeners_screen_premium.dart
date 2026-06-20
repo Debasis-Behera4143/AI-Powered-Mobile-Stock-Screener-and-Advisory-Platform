@@ -215,10 +215,10 @@ class _SavedScreenersScreenState extends State<SavedScreenersScreen> {
                   vertical: PremiumUI.spacingS,
                 ),
                 decoration: BoxDecoration(
-                  color: PremiumColors.neonTeal.withOpacity(0.1),
+                  color: PremiumColors.neonTeal.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(PremiumUI.radiusM),
                   border: Border.all(
-                    color: PremiumColors.neonTeal.withOpacity(0.3),
+                    color: PremiumColors.neonTeal.withValues(alpha: 0.3),
                   ),
                 ),
                 child: Text(
